@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import NavBar from "../components/NavBar";
+import { useNavigate } from "react-router";
 
 const Counter = ({ value }) => {
     const ref = useRef(null);
@@ -22,6 +23,7 @@ const Counter = ({ value }) => {
 };
 
 const AboutUsScreen = () => {
+    const navigate = useNavigate();
     return (
         <div className="w-full min-h-screen relative overflow-x-hidden bg-[#080808]">
             <style>
@@ -253,6 +255,10 @@ const AboutUsScreen = () => {
                             ease: [0.16, 1, 0.3, 1],
                         }}
                         className="relative overflow-hidden group w-64 h-16 bg-white text-black text-sm font-bold uppercase tracking-[0.2em] transition-all duration-500 active:scale-95 hover:cursor-pointer hover:shadow-[0_0_30px_5px_rgba(45,55,75,0.8)]"
+                        onClick={() => {
+                            navigate("/collection");
+                            window.scrollTo(0, 0);
+                        }}
                     >
                         <span className="absolute inset-0 bg-[#1e293b] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]"></span>
 
