@@ -1,10 +1,7 @@
 import { useState } from "react";
 import MainScreen from "./screens/MainScreen";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import F1True3DRoad from "./screens/AboutUsScreen";
-import F1FinalRoad from "./screens/AboutUsScreen";
-import AboutUsExpo from "./screens/AboutUsScreen";
+import AboutUsScreen from "./screens/AboutUsScreen";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -13,7 +10,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainScreen />} />
-        <Route path="/about-us" element={<AboutUsExpo />} />
+        <Route path="/about-us" element={<AboutUsScreen />} />
       </Routes>
     </BrowserRouter>
   );

@@ -4,7 +4,7 @@ const NavBar = () => {
   return (
     <>
       <div
-        className="w-full h-22 px-10 flex items-center justify-between"
+        className="w-full h-[15vh] px-10 flex items-center justify-between"
         style={{
           fontFamily: "Bebas Neue",
         }}
