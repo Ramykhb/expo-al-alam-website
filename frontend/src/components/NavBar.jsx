@@ -1,14 +1,23 @@
+import { Link } from "react-router";
+
 const NavBar = () => {
   return (
     <>
-      <div className="w-full h-22 px-10 flex items-center justify-between">
-        <img src="/logo.png" alt="Logo" className="w-[10%] h-auto mb-4" />
+      <div
+        className="w-full h-22 px-10 flex items-center justify-between"
+        style={{
+          fontFamily: "Bebas Neue",
+        }}
+      >
+        <Link to={"/"} className="w-[10%] h-auto mb-4">
+          <img src="/logo.png" alt="Logo" className="w-auto h-auto" />
+        </Link>
 
         <ul className="flex flex-row w-[40%] justify-around text-white text-2xl">
           {["COLLECTION", "ABOUT US", "CONTACT US"].map((item) => (
             <li key={item} className="relative group py-2">
               <a
-                href={`pages/${item.toLowerCase().replace(" ", "")}.html`}
+                href={`/${item.toLowerCase().replace(" ", "-")}`}
                 className="text-white tracking-wide"
               >
                 {item}
