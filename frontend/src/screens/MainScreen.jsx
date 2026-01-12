@@ -87,9 +87,9 @@ const MainScreen = () => {
 
                 <div className="h-px flex-1 mx-10 bg-black/10" />
 
-                <div className="flex items-center gap-8">
+                <div className="flex items-center gap-8 z-20">
                     <a
-                        href="#"
+                        href="https://instagram.com/expoalam"
                         target="_blank"
                         className="block transition-transform duration-300 hover:scale-110"
                     >
@@ -100,7 +100,7 @@ const MainScreen = () => {
                         />
                     </a>
                     <a
-                        href="#"
+                        href="https://tiktok.com/@alalamcars"
                         target="_blank"
                         className="block transition-transform duration-300 hover:scale-110"
                     >
@@ -111,7 +111,7 @@ const MainScreen = () => {
                         />
                     </a>
                     <a
-                        href="#"
+                        href="https://wa.me/96181039626"
                         target="_blank"
                         className="block transition-transform duration-300 hover:scale-110"
                     >
