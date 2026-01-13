@@ -5,10 +5,10 @@ import AboutUsScreen from "./screens/AboutUsScreen";
 import ContactUsScreen from "./screens/ContactUsScreen";
 import CollectionScreen from "./screens/CollectionScreen";
 import SingleVehicleScreen from "./screens/SingleVehicleScreen";
+import LoginScreen from "./screens/LoginScreen";
+import AddVehicleScreen from "./screens/AddVehicleScreen";
 
 function App() {
-    const [count, setCount] = useState(0);
-
     return (
         <BrowserRouter>
             <Routes>
@@ -16,6 +16,8 @@ function App() {
                 <Route path="/about-us" element={<AboutUsScreen />} />
                 <Route path="/contact-us" element={<ContactUsScreen />} />
                 <Route path="/collection" element={<CollectionScreen />} />
+                <Route path="/login" element={<LoginScreen />} />
+                <Route path="/add-vehicle" element={<AddVehicleScreen />} />
                 <Route path="/vehicle/:id" element={<SingleVehicleScreen />} />
             </Routes>
         </BrowserRouter>

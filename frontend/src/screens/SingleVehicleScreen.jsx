@@ -8,8 +8,8 @@ import {
     Box,
     Calendar,
     Zap,
-    Palette, // Icon for colors
-    Droplets, // Icon for interior
+    Palette,
+    Droplets,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 
