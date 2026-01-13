@@ -51,7 +51,7 @@ const AboutUsScreen = () => {
                 <NavBar />
 
                 <section
-                    className="relative h-[85vh] flex items-center px-20 overflow-hidden"
+                    className="relative h-[85vh] flex items-center md:px-20 px-12 overflow-hidden"
                     style={{ fontFamily: "Oswald" }}
                 >
                     <motion.h1
@@ -132,7 +132,7 @@ const AboutUsScreen = () => {
                     />
                 </section>
 
-                <section className="px-20 grid md:grid-cols-2 gap-20 items-center py-20 overflow-hidden">
+                <section className="px-12 md:px-20 grid md:grid-cols-2 gap-20 items-center py-20 overflow-hidden">
                     <motion.div
                         className="space-y-8"
                         initial={{ opacity: 0, x: -60 }}
@@ -188,7 +188,7 @@ const AboutUsScreen = () => {
 
                 <section className="bg-white py-10 mt-20">
                     <div
-                        className="max-w-7xl mx-auto px-20 grid grid-cols-2 md:grid-cols-4 gap-12 text-center"
+                        className="max-w-7xl mx-auto px-12 md:px-20 grid grid-cols-2 md:grid-cols-4 gap-12 text-center"
                         style={{ fontFamily: "Bebas Neue" }}
                     >
                         <div className="group">
@@ -268,12 +268,12 @@ const AboutUsScreen = () => {
                     </motion.button>
                 </motion.section>
 
-                <div className="w-full bg-white h-[10vh] flex items-center px-20 justify-between">
+                <div className="w-full bg-white md:h-[10vh] py-6 md:py-0 flex flex-col md:flex-row items-center px-10 md:px-20 justify-between gap-4 md:gap-0">
                     <span className="text-black text-[10px] tracking-[0.3em] uppercase font-bold font-sans">
                         © Expo Al Alam
                     </span>
 
-                    <div className="h-px flex-1 mx-10 bg-black/10" />
+                    <div className="h-px flex-1 mx-10 bg-black/10 hidden md:block" />
 
                     <div className="flex items-center gap-8">
                         <a

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import NavBar from "../components/NavBar";
+import axios from "axios";
 import {
     ChevronLeft,
     ChevronRight,
@@ -11,46 +12,75 @@ import {
     Palette,
     Droplets,
 } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 const SingleVehicleScreen = () => {
     const [activeImg, setActiveImg] = useState(0);
+    const { id: carId } = useParams();
     const navigate = useNavigate();
+    const [car, setCar] = useState(null);
 
-    const car = {
-        name: "Phantom Stealth V12",
-        price: "$2,450,000",
-        stock: "STOCK: EX-0092",
-        series: "APEX SERIES // 01",
-        specs: [
-            { label: "Mileage", value: "42 KM", icon: <Gauge size={14} /> },
-            {
-                label: "Transmission",
-                value: "8-Speed DCT",
-                icon: <Box size={14} />,
-            },
-            { label: "Power", value: "1,200 HP", icon: <Zap size={14} /> },
-            { label: "Year", value: "2026", icon: <Calendar size={14} /> },
-            {
-                label: "Exterior",
-                value: "Satin Black",
-                icon: <Palette size={14} />,
-            },
-            {
-                label: "Interior",
-                value: "Alcantara Red",
-                icon: <Droplets size={14} />,
-            },
-        ],
-        images: [
-            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200",
-            "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?q=80&w=1200",
-            "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?q=80&w=1200",
-            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200",
-            "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?q=80&w=1200",
-            "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?q=80&w=1200",
-        ],
-    };
+    useEffect(() => {
+        const fetchCarData = async () => {
+            try {
+                const res = await axios.get(
+                    `http://localhost:3000/api/vehicles/${carId}`
+                );
+                const carData = res.data.car;
+
+                const formattedCar = {
+                    ...carData,
+                    images: carData.image_links || [],
+                    specs: [
+                        {
+                            icon: <Gauge size={14} />,
+                            label: "Power",
+                            value: `${carData.power} HP`,
+                        },
+                        {
+                            icon: <Box size={14} />,
+                            label: "Transmission",
+                            value: carData.transmission,
+                        },
+                        {
+                            icon: <Calendar size={14} />,
+                            label: "Year",
+                            value: carData.year,
+                        },
+                        {
+                            icon: <Zap size={14} />,
+                            label: "Mileage",
+                            value: `${carData.mileage} KM`,
+                        },
+                        {
+                            icon: <Palette size={14} />,
+                            label: "Exterior",
+                            value: carData.exterior_color,
+                        },
+                        {
+                            icon: <Droplets size={14} />,
+                            label: "Interior",
+                            value: carData.interior_color,
+                        },
+                    ],
+                };
+                setCar(formattedCar);
+            } catch (error) {
+                console.error("Error fetching car data:", error);
+            }
+        };
+        fetchCarData();
+    }, [carId]);
+
+    if (!car) {
+        return (
+            <div className="w-full h-screen bg-[#080808] flex items-center justify-center">
+                <div className="text-white tracking-[0.5em] text-[10px] uppercase animate-pulse">
+                    Initializing System...
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full h-screen bg-[#080808] text-white overflow-hidden flex flex-col">
@@ -139,7 +169,7 @@ const SingleVehicleScreen = () => {
                     <div className="px-8 pt-14 pb-4">
                         {" "}
                         <p className="text-[#64748b] text-[9px] font-bold tracking-[0.4em] mb-1">
-                            {car.series}
+                            {car.brand}
                         </p>
                         <h1
                             className="text-4xl font-black uppercase italic tracking-tighter leading-none mb-4"
@@ -149,7 +179,12 @@ const SingleVehicleScreen = () => {
                         </h1>
                         <div className="flex justify-between items-center bg-white/5 p-3 border border-white/5">
                             <span className="text-xl font-light tracking-tight">
-                                {car.price}
+                                {Number(car.price).toLocaleString("en-US", {
+                                    style: "currency",
+                                    currency: "USD",
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                })}
                             </span>
                             <span className="text-[9px] font-bold text-zinc-500 tracking-widest">
                                 {car.stock}
@@ -187,11 +222,13 @@ const SingleVehicleScreen = () => {
                 </section>
             </main>
 
-            <div className="w-full bg-white h-[10vh] flex items-center px-20 justify-between shrink-0">
+            <div className="w-full bg-white md:h-[10vh] py-6 md:py-0 flex flex-col md:flex-row items-center px-10 md:px-20 justify-between gap-4 md:gap-0">
                 <span className="text-black text-[10px] tracking-[0.3em] uppercase font-bold font-sans">
                     © Expo Al Alam
                 </span>
-                <div className="h-px flex-1 mx-10 bg-black/10" />
+
+                <div className="h-px flex-1 mx-10 bg-black/10 hidden md:block" />
+
                 <div className="flex items-center gap-8">
                     <a
                         href="https://instagram.com/expoalam"

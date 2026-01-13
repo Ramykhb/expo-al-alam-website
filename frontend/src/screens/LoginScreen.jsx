@@ -130,7 +130,7 @@ const LoginScreen = () => {
                 </motion.div>
             </main>
 
-            <div className="w-full bg-white h-[10vh] flex items-center px-10 md:px-20 justify-between shrink-0">
+            <div className="w-full bg-white md:h-[10vh] py-6 md:py-0 flex flex-col md:flex-row items-center px-10 md:px-20 justify-between gap-4 md:gap-0">
                 <span className="text-black text-[10px] tracking-[0.3em] uppercase font-bold font-sans">
                     © Expo Al Alam
                 </span>

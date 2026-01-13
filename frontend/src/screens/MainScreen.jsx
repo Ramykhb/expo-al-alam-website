@@ -6,7 +6,7 @@ const MainScreen = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="w-screen h-screen relative overflow-hidden bg-[#080808]">
+        <div className="w-screen min-h-screen md:h-screen relative overflow-x-hidden md:overflow-hidden bg-[#080808] flex flex-col">
             <style>
                 {`
             @keyframes slideRightFade {
@@ -34,7 +34,7 @@ const MainScreen = () => {
             </style>
 
             <div
-                className="w-full h-[90%]"
+                className="w-full flex-1 md:h-[90%] flex flex-col"
                 style={{
                     background:
                         "radial-gradient(circle at 50% 120%, rgba(45, 55, 75, 0.7) 0%, rgba(8, 8, 8, 1) 75%)",
@@ -42,18 +42,19 @@ const MainScreen = () => {
                 }}
             >
                 <NavBar />
+
                 <div
-                    className="flex flex-col flex-1 px-20 pt-7 mt-20"
+                    className="flex flex-col flex-1 px-8 md:px-20 pt-10 md:pt-7 mt-10 md:mt-20 z-10 text-center md:text-left items-center md:items-start"
                     style={{ fontFamily: "Oswald" }}
                 >
-                    <h1 className="text-white text-6xl md:text-7xl font-black mb-8 uppercase italic tracking-tight pr-4 opacity-0 animate-[slideRightFade_1s_cubic-bezier(0.16,1,0.3,1)_0.2s_forwards]">
-                        Fuel Your{" "}
+                    <h1 className="text-white text-6xl md:text-7xl font-black mb-6 md:mb-8 uppercase italic tracking-tight opacity-0 animate-[slideRightFade_1s_cubic-bezier(0.16,1,0.3,1)_0.2s_forwards]">
+                        Fuel Your <br className="md:hidden" />
                         <span className="inline-block text-transparent bg-clip-text bg-linear-to-t from-[#64748b] via-white to-[#1e293b] px-3">
                             Ambition
                         </span>
                     </h1>
 
-                    <p className="w-[40%] text-white text-lg mt-5 opacity-0 animate-[slideRightFade_0.8s_ease-out_0.4s_forwards]">
+                    <p className="w-full md:w-[40%] text-zinc-400 md:text-white text-base md:text-lg mt-2 md:mt-5 leading-relaxed opacity-0 animate-[slideRightFade_0.8s_ease-out_0.4s_forwards]">
                         Step into a world where engineering meets imagination.
                         Our expo brings together the visionaries, the machines,
                         and the technology that will define the roads of
@@ -61,7 +62,7 @@ const MainScreen = () => {
                     </p>
 
                     <button
-                        className="relative overflow-hidden group w-56 h-14 bg-white text-black mt-12 text-sm font-bold uppercase tracking-[0.2em] transition-all duration-500 opacity-0 animate-[slideRightFade_0.8s_ease-out_0.6s_forwards] active:scale-95 hover:cursor-pointer 
+                        className="relative overflow-hidden group w-full md:w-56 h-16 md:h-14 bg-white text-black mt-12 text-xs md:text-sm font-bold uppercase tracking-[0.3em] transition-all duration-500 opacity-0 animate-[slideRightFade_0.8s_ease-out_0.6s_forwards] active:scale-95 hover:cursor-pointer 
   hover:shadow-[0_0_30px_5px_rgba(45,55,75,0.8)] hover:border-transparent"
                         onClick={() => navigate("/collection")}
                     >
@@ -77,17 +78,17 @@ const MainScreen = () => {
             <img
                 src="/mercedes.png"
                 alt="Mercedes"
-                className="w-[60%] h-auto absolute bottom-[-2%] left-[35%] z-20 opacity-0 animate-[slideLeftFade_1.4s_cubic-bezier(0.16,1,0.3,1)_0.4s_forwards]"
+                className="hidden md:block w-[60%] h-auto absolute bottom-[-2%] left-[35%] z-20 opacity-0 animate-[slideLeftFade_1.4s_cubic-bezier(0.16,1,0.3,1)_0.4s_forwards]"
             />
 
-            <div className="w-full bg-white h-[10%] flex items-center px-20 justify-between">
+            <div className="w-full bg-white md:h-[10vh] py-6 md:py-0 flex flex-col md:flex-row items-center px-10 md:px-20 justify-between gap-4 md:gap-0">
                 <span className="text-black text-[10px] tracking-[0.3em] uppercase font-bold font-sans">
                     © Expo Al Alam
                 </span>
 
-                <div className="h-px flex-1 mx-10 bg-black/10" />
+                <div className="h-px flex-1 mx-10 bg-black/10 hidden md:block" />
 
-                <div className="flex items-center gap-8 z-20">
+                <div className="flex items-center gap-8">
                     <a
                         href="https://instagram.com/expoalam"
                         target="_blank"
