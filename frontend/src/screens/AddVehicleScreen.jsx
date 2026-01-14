@@ -14,7 +14,7 @@ import api from "../../config/axios";
 
 const AddVehicleScreen = () => {
     const [images, setImages] = useState([]);
-    const [status, setStatus] = useState("Ready");
+    const [status, setStatus] = useState({ type: "neutral", message: "Ready" });
 
     const [formData, setFormData] = useState({
         name: "",
@@ -64,13 +64,15 @@ const AddVehicleScreen = () => {
         const missing = requiredFields.filter((f) => !formData[f]);
 
         if (missing.length > 0 || images.length === 0) {
-            alert(
-                "Vehicle Name, Brand, Price, and at least one image are required."
-            );
+            setStatus({
+                type: "error",
+                message:
+                    "Vehicle Name, Brand, Price, and at least one image are required.",
+            });
             return;
         }
 
-        setStatus("Transmitting");
+        setStatus({ type: "neutral", message: "Transmitting" });
 
         try {
             const data = new FormData();
@@ -89,8 +91,10 @@ const AddVehicleScreen = () => {
             });
 
             if (response.data.success) {
-                setStatus("Success");
-                alert("Vehicle deployed to collection.");
+                setStatus({
+                    type: "success",
+                    message: "Vehicle deployed to collection.",
+                });
                 setImages([]);
                 setFormData({
                     name: "",
@@ -107,10 +111,15 @@ const AddVehicleScreen = () => {
             }
         } catch (error) {
             console.error("Submission error:", error);
-            setStatus("Error");
-            alert(error.response?.data?.error || "Transmission failed.");
+            setStatus({
+                type: "error",
+                message: error.response?.data?.error || "Transmission failed.",
+            });
         } finally {
-            setTimeout(() => setStatus("Ready"), 3000);
+            setTimeout(
+                () => setStatus({ type: "neutral", message: "Ready" }),
+                3000
+            );
         }
     };
 
@@ -367,14 +376,16 @@ const AddVehicleScreen = () => {
                             <div className="flex items-center gap-3">
                                 <span
                                     className={`text-[8px] font-bold tracking-[0.4em] uppercase ${
-                                        status === "Error"
+                                        status.type === "error"
                                             ? "text-red-500"
+                                            : status.type === "success"
+                                            ? "text-green-500"
                                             : "text-zinc-600"
                                     }`}
                                 >
-                                    System Status: {status}
+                                    System Status: {status.message}
                                 </span>
-                                {status === "Transmitting" && (
+                                {status.message === "Transmitting" && (
                                     <Loader2
                                         size={12}
                                         className="animate-spin text-white"
@@ -383,16 +394,16 @@ const AddVehicleScreen = () => {
                             </div>
                             <motion.button
                                 type="submit"
-                                disabled={status === "Transmitting"}
+                                disabled={status.message === "Transmitting"}
                                 whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.98 }}
                                 className={`w-full md:w-auto bg-white text-black px-12 h-14 md:h-12 text-[10px] font-bold uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:cursor-pointer transition-opacity ${
-                                    status === "Transmitting"
+                                    status.message === "Transmitting"
                                         ? "opacity-50"
                                         : "opacity-100"
                                 }`}
                             >
-                                {status === "Transmitting"
+                                {status.message === "Transmitting"
                                     ? "Uploading Asset"
                                     : "Add to Collection"}
                                 <CheckCircle2 size={16} />

@@ -169,11 +169,7 @@ const CollectionScreen = () => {
                                     <div
                                         className="absolute inset-0 transition-all duration-700 grayscale group-hover:grayscale-0 scale-110 group-hover:scale-100 opacity-30 group-hover:opacity-100"
                                         style={{
-                                            backgroundImage: `url(${
-                                                car.image_links
-                                                    ? car.image_links[0]
-                                                    : ""
-                                            })`,
+                                            backgroundImage: `url(http://localhost:3000${car.image_links[0]})`,
                                             backgroundSize: "cover",
                                             backgroundPosition: "center",
                                         }}

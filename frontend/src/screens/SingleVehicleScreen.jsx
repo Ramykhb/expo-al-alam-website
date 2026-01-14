@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import NavBar from "../components/NavBar";
-import axios from "axios";
 import {
     ChevronLeft,
     ChevronRight,
@@ -11,6 +10,13 @@ import {
     Zap,
     Palette,
     Droplets,
+    Trash2,
+    Edit3,
+    Check,
+    X,
+    ShoppingBag,
+    PenTool,
+    Save,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import api from "../../config/axios";
@@ -21,55 +27,53 @@ const SingleVehicleScreen = () => {
     const navigate = useNavigate();
     const [car, setCar] = useState(null);
 
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+
     useEffect(() => {
         const fetchCarData = async () => {
             try {
                 const res = await api.get(`/vehicles/${carId}`);
                 const carData = res.data.car;
-
-                const formattedCar = {
+                setCar({
                     ...carData,
                     images: carData.image_links || [],
-                    specs: [
-                        {
-                            icon: <Gauge size={14} />,
-                            label: "Power",
-                            value: `${carData.power} HP`,
-                        },
-                        {
-                            icon: <Box size={14} />,
-                            label: "Transmission",
-                            value: carData.transmission,
-                        },
-                        {
-                            icon: <Calendar size={14} />,
-                            label: "Year",
-                            value: carData.year,
-                        },
-                        {
-                            icon: <Zap size={14} />,
-                            label: "Mileage",
-                            value: `${carData.mileage} KM`,
-                        },
-                        {
-                            icon: <Palette size={14} />,
-                            label: "Exterior",
-                            value: carData.exterior_color,
-                        },
-                        {
-                            icon: <Droplets size={14} />,
-                            label: "Interior",
-                            value: carData.interior_color,
-                        },
-                    ],
-                };
-                setCar(formattedCar);
+                });
             } catch (error) {
                 console.error("Error fetching car data:", error);
             }
         };
         fetchCarData();
     }, [carId]);
+
+    useEffect(() => {
+        const checkLoggedIn = async () => {
+            try {
+                const res = await api.get("/auth/status");
+                if (res.data.loggedIn) {
+                    setIsAdmin(true);
+                }
+            } catch (err) {
+                console.log("Auth check failed");
+            }
+        };
+        checkLoggedIn();
+    }, []);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setCar((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = async () => {
+        setIsEditing(false);
+    };
+
+    const handleDelete = async () => {
+        if (window.confirm("Confirm deletion of this unit?")) {
+            navigate("/collection");
+        }
+    };
 
     if (!car) {
         return (
@@ -81,12 +85,44 @@ const SingleVehicleScreen = () => {
         );
     }
 
-    return (
-        <div className="w-full h-screen bg-[#080808] text-white overflow-hidden flex flex-col">
-            <NavBar />
+    const specFields = [
+        {
+            key: "power",
+            label: "Power",
+            icon: <Gauge size={14} />,
+            suffix: " HP",
+        },
+        { key: "transmission", label: "Transmission", icon: <Box size={14} /> },
+        { key: "year", label: "Year", icon: <Calendar size={14} /> },
+        {
+            key: "mileage",
+            label: "Mileage",
+            icon: <Zap size={14} />,
+            suffix: " KM",
+        },
+        {
+            key: "exterior_color",
+            label: "Exterior",
+            icon: <Palette size={14} />,
+        },
+        {
+            key: "interior_color",
+            label: "Interior",
+            icon: <Droplets size={14} />,
+        },
+    ];
 
-            <main className="h-[75vh] flex flex-col md:flex-row min-h-0 bg-[#080808] overflow-hidden">
-                <section className="flex-[1.6] flex flex-col p-6 pb-2 gap-3 min-h-0 overflow-hidden">
+    return (
+        <div className="w-full h-screen bg-[#080808] text-white flex flex-col overflow-y-auto md:overflow-hidden">
+            {/* Header: Fixed 15% height on desktop */}
+            <div className="md:h-[15vh] shrink-0">
+                <NavBar />
+            </div>
+
+            {/* Main Section */}
+            <main className="flex-1 flex flex-col md:flex-row bg-[#080808] md:h-[75vh] md:overflow-hidden">
+                {/* Left: Images */}
+                <section className="w-full md:flex-1 flex flex-col p-4 md:p-6 pb-2 gap-3 shrink-0 md:min-h-0">
                     <nav className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.3em] text-zinc-500 font-sans px-2">
                         <span
                             className="hover:text-white cursor-pointer transition-colors"
@@ -98,11 +134,11 @@ const SingleVehicleScreen = () => {
                         <span className="text-white">{car.name}</span>
                     </nav>
 
-                    <div className="flex-1 relative bg-zinc-900 rounded-sm overflow-hidden group border border-white/5">
+                    <div className="aspect-video md:flex-1 relative bg-zinc-900 rounded-sm overflow-hidden group border border-white/5">
                         <AnimatePresence mode="wait">
                             <motion.img
                                 key={activeImg}
-                                src={car.images[activeImg]}
+                                src={`http://localhost:3000${car.images[activeImg]}`}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
@@ -111,7 +147,7 @@ const SingleVehicleScreen = () => {
                             />
                         </AnimatePresence>
 
-                        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between z-10">
                             <button
                                 onClick={() =>
                                     setActiveImg((prev) =>
@@ -120,9 +156,9 @@ const SingleVehicleScreen = () => {
                                             : car.images.length - 1
                                     )
                                 }
-                                className="p-4 bg-black/80 border border-white/10 hover:bg-white hover:text-black transition-all"
+                                className="md:p-3 bg-black/80 border border-white/10 hover:bg-white hover:text-black transition-all h-6 w-6 flex items-center justify-center mt-2 md:h-12 md:w-12"
                             >
-                                <ChevronLeft size={20} />
+                                <ChevronLeft className="w-[8px] h-[8px] md:w-[14px] md:h-[14px]" />
                             </button>
                             <button
                                 onClick={() =>
@@ -132,30 +168,26 @@ const SingleVehicleScreen = () => {
                                             : 0
                                     )
                                 }
-                                className="p-4 bg-black/80 border border-white/10 hover:bg-white hover:text-black transition-all"
+                                className="md:p-3 bg-black/80 border border-white/10 hover:bg-white hover:text-black transition-all h-6 w-6 flex items-center justify-center mt-2 md:h-12 md:w-12"
                             >
-                                <ChevronRight size={20} />
+                                <ChevronRight className="w-[8px] h-[8px] md:w-[14px] md:h-[14px]" />
                             </button>
-                        </div>
-
-                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-3 py-1 text-[8px] font-bold tracking-widest border border-white/10">
-                            {activeImg + 1} / {car.images.length}
                         </div>
                     </div>
 
-                    <div className="flex gap-3 h-16 shrink-0 mb-2">
+                    <div className="flex gap-2 h-14 shrink-0 mb-2 overflow-x-auto no-scrollbar">
                         {car.images.map((img, i) => (
                             <button
                                 key={i}
                                 onClick={() => setActiveImg(i)}
-                                className={`flex-1 h-full border transition-all duration-300 relative ${
+                                className={`min-w-[80px] flex-1 h-full border transition-all duration-300 ${
                                     activeImg === i
-                                        ? "border-[#1e293b]"
+                                        ? "border-white/40"
                                         : "border-white/5 opacity-40 hover:opacity-100"
                                 }`}
                             >
                                 <img
-                                    src={img}
+                                    src={`http://localhost:3000${img}`}
                                     className="w-full h-full object-cover grayscale"
                                     alt="car"
                                 />
@@ -164,59 +196,148 @@ const SingleVehicleScreen = () => {
                     </div>
                 </section>
 
-                <section className="flex-1 flex flex-col shadow-2xl overflow-hidden h-full">
-                    <div className="px-8 pt-14 pb-4">
-                        {" "}
-                        <p className="text-[#64748b] text-[9px] font-bold tracking-[0.4em] mb-1">
-                            {car.brand}
-                        </p>
-                        <h1
-                            className="text-4xl font-black uppercase italic tracking-tighter leading-none mb-4"
-                            style={{ fontFamily: "Oswald" }}
-                        >
-                            {car.name}
-                        </h1>
+                {/* Right: Specs & Actions */}
+                <section className="w-full md:flex-[0.8] flex flex-col md:border-l border-white/5 bg-[#080808] md:h-full">
+                    {/* Brand & Name (Static) */}
+                    <div className="px-6 md:px-8 pt-6 md:pt-10 pb-4 shrink-0">
+                        {isEditing ? (
+                            <input
+                                name="brand"
+                                value={car.brand}
+                                onChange={handleInputChange}
+                                className="bg-transparent border-b border-white/20 text-[#64748b] text-[9px] font-bold tracking-[0.4em] mb-1 outline-none w-full uppercase py-1"
+                            />
+                        ) : (
+                            <p className="text-[#64748b] text-[9px] font-bold tracking-[0.4em] mb-1 uppercase">
+                                {car.brand}
+                            </p>
+                        )}
+
+                        {isEditing ? (
+                            <input
+                                name="name"
+                                value={car.name}
+                                onChange={handleInputChange}
+                                className="bg-transparent border-b border-white/20 text-2xl md:text-3xl font-black uppercase italic tracking-tighter outline-none w-full mb-4 py-1"
+                                style={{ fontFamily: "Oswald" }}
+                            />
+                        ) : (
+                            <h1
+                                className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter leading-none mb-4"
+                                style={{ fontFamily: "Oswald" }}
+                            >
+                                {car.name}
+                            </h1>
+                        )}
+
                         <div className="flex justify-between items-center bg-white/5 p-3 border border-white/5">
-                            <span className="text-xl font-light tracking-tight">
-                                {Number(car.price).toLocaleString("en-US", {
-                                    style: "currency",
-                                    currency: "USD",
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0,
-                                })}
-                            </span>
-                            <span className="text-[9px] font-bold text-zinc-500 tracking-widest">
-                                {car.stock}
-                            </span>
+                            {isEditing ? (
+                                <div className="flex items-center gap-1 w-full">
+                                    <span className="text-xl font-light">
+                                        $
+                                    </span>
+                                    <input
+                                        name="price"
+                                        type="number"
+                                        value={car.price}
+                                        onChange={handleInputChange}
+                                        className="bg-transparent text-xl font-light tracking-tight outline-none w-full"
+                                    />
+                                </div>
+                            ) : (
+                                <span className="text-xl font-light tracking-tight">
+                                    {Number(car.price).toLocaleString("en-US", {
+                                        style: "currency",
+                                        currency: "USD",
+                                        minimumFractionDigits: 0,
+                                    })}
+                                </span>
+                            )}
                         </div>
                     </div>
 
-                    <div className="flex-1 px-8 flex flex-col justify-center gap-2 overflow-hidden">
-                        <div className="grid grid-cols-2 gap-2">
-                            {" "}
-                            {car.specs.map((s, i) => (
+                    <div className="px-6 md:px-8 py-4 flex-1 overflow-hidden no-scrollbar">
+                        <div className="grid grid-cols-2 gap-2 pb-6">
+                            {specFields.map((field, i) => (
                                 <div
                                     key={i}
-                                    className="border border-white/5 p-2 py-3 flex flex-col gap-1 hover:bg-white/[0.02] transition-colors"
+                                    className="border border-white/5 p-3 flex flex-col gap-1 hover:bg-white/[0.02]"
                                 >
                                     <div className="flex items-center gap-2 text-zinc-500">
-                                        {s.icon}
+                                        {field.icon}
                                         <span className="text-[8px] font-bold uppercase tracking-[0.2em]">
-                                            {s.label}
+                                            {field.label}
                                         </span>
                                     </div>
-                                    <span className="text-sm font-bold uppercase italic font-sans">
-                                        {s.value}
-                                    </span>
+                                    {isEditing ? (
+                                        <input
+                                            name={field.key}
+                                            value={car[field.key] || ""}
+                                            onChange={handleInputChange}
+                                            className="bg-transparent border-b border-white/10 text-sm font-bold uppercase italic outline-none w-full"
+                                        />
+                                    ) : (
+                                        <span className="text-sm font-bold uppercase italic">
+                                            {car[field.key]}
+                                            {field.suffix}
+                                        </span>
+                                    )}
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="p-8 bg-[#0c0c0c] shrink-0">
-                        <button className="w-full h-12 bg-white text-black font-bold uppercase text-[10px] tracking-[0.3em] flex items-center justify-center hover:bg-zinc-200 transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                            Acquire Unit
-                        </button>
+                    <div className="p-6 md:p-8 bg-[#0c0c0c] shrink-0 border-t border-white/5 mt-auto">
+                        {isAdmin ? (
+                            <div className="flex gap-2 w-full">
+                                {isEditing ? (
+                                    <>
+                                        <button
+                                            onClick={handleSave}
+                                            className="flex-1 h-12 bg-white text-black font-bold uppercase text-[9px] tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95"
+                                        >
+                                            <Save size={14} /> Save Changes
+                                        </button>
+                                        <button
+                                            onClick={() => setIsEditing(false)}
+                                            className="w-14 h-12 border border-white/10 text-white flex items-center justify-center"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={() => setIsEditing(true)}
+                                            className="flex-1 h-12 bg-white text-black font-bold uppercase text-[9px] tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95"
+                                        >
+                                            <PenTool size={14} /> Edit Vehicle
+                                        </button>
+                                        <button
+                                            onClick={handleDelete}
+                                            className="w-14 h-12 border border-red-900/50 text-red-500 flex items-center justify-center"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => {
+                                    const message = encodeURIComponent(
+                                        `Hello, I would like to buy this car: ${car.brand} ${car.name} listed at $${car.price}.`
+                                    );
+                                    window.open(
+                                        `https://wa.me/96181039626?text=${message}`,
+                                        "_blank"
+                                    );
+                                }}
+                                className="w-full h-12 bg-white text-black font-bold uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-2 active:scale-95"
+                            >
+                                <ShoppingBag size={16} /> Purchase Car
+                            </button>
+                        )}
                     </div>
                 </section>
             </main>

@@ -7,6 +7,7 @@ import CollectionScreen from "./screens/CollectionScreen";
 import SingleVehicleScreen from "./screens/SingleVehicleScreen";
 import LoginScreen from "./screens/LoginScreen";
 import AddVehicleScreen from "./screens/AddVehicleScreen";
+import ChangePasswordScreen from "./screens/ChangePasswordScreen";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -22,6 +23,14 @@ function App() {
                 element={
                     <ProtectedRoute>
                         <AddVehicleScreen />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/change-password"
+                element={
+                    <ProtectedRoute>
+                        <ChangePasswordScreen />
                     </ProtectedRoute>
                 }
             />

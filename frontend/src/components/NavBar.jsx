@@ -19,9 +19,9 @@ const NavBar = () => {
             if (res.data.loggedIn) {
                 setNavItems([
                     { name: "COLLECTION", path: "/collection" },
-                    { name: "ABOUT US", path: "/about-us" },
                     { name: "ADD VEHICLE", path: "/add-vehicle" },
-                    { name: "LOGOUT", path: "/logout" },
+                    { name: "CHANGE PASSWORD", path: "/change-password" },
+                    { name: "LOGOUT", path: "/" },
                 ]);
             }
         };
@@ -45,11 +45,11 @@ const NavBar = () => {
                             {item.name === "LOGOUT" ? (
                                 <button
                                     onClick={async () => {
-                                        await api.post("/auth/logout");
                                         localStorage.removeItem("accessToken");
+                                        await api.post("/auth/logout");
                                         window.location.href = "/";
                                     }}
-                                    className="text-white tracking-widest"
+                                    className="text-white tracking-widest hover:cursor-pointer"
                                 >
                                     {item.name}
                                 </button>
@@ -103,13 +103,31 @@ const NavBar = () => {
                                         key={item.name}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        <Link
-                                            to={item.path}
-                                            onClick={() => setIsOpen(false)}
-                                            className="tracking-widest block py-2 border-b border-white/5"
-                                        >
-                                            {item.name}
-                                        </Link>
+                                        {item.name === "LOGOUT" ? (
+                                            <button
+                                                onClick={async () => {
+                                                    setIsOpen(false);
+                                                    localStorage.removeItem(
+                                                        "accessToken"
+                                                    );
+                                                    await api.post(
+                                                        "/auth/logout"
+                                                    );
+                                                    window.location.href = "/";
+                                                }}
+                                                className="tracking-widest block py-2 border-b border-white/5 text-left"
+                                            >
+                                                {item.name}
+                                            </button>
+                                        ) : (
+                                            <Link
+                                                to={item.path}
+                                                onClick={() => setIsOpen(false)}
+                                                className="tracking-widest block py-2 border-b border-white/5"
+                                            >
+                                                {item.name}
+                                            </Link>
+                                        )}
                                     </motion.div>
                                 ))}
                             </div>
