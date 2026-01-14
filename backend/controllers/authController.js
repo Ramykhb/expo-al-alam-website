@@ -69,7 +69,7 @@ export const changePassword = async (req, res) => {
     try {
         const result = await updatePassword(username, currentPass, newPass);
         if (!result) {
-            return res.status(401).json({
+            return res.status(403).json({
                 title: "IncorrectPassword",
                 message: "Current password is incorrect.",
             });

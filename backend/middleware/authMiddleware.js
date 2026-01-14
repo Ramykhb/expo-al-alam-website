@@ -12,10 +12,18 @@ export const checkSignup = async (req, res, next) => {
             .status(400)
             .json({ message: "Request body cannot be empty" });
     }
-    const { username, password } = req.body;
-    if (!username || !password) {
+    const { username, password, secret } = req.body;
+    if (!username || !password || !secret) {
         return res.status(400).json({ message: "Please fill out all fields" });
     }
+
+    if (secret !== process.env.ADD_USER_SECRET) {
+        return res.status(403).json({
+            error: "InvalidSecret",
+            message: "You are not authorized to create a new account.",
+        });
+    }
+
     try {
         const usernameFound = await usernameExists(
             req.body.username.toLowerCase()
@@ -69,38 +77,6 @@ export const checkLogin = async (req, res, next) => {
     }
 };
 
-export const checkProfileEdit = async (req, res, next) => {
-    if (!req.body || Object.keys(req.body).length === 0) {
-        return res
-            .status(400)
-            .json({ message: "Request body cannot be empty" });
-    }
-    const { isPublic, bio, name, profileImage } = req.body;
-    if (isPublic == null || !bio || !name || !profileImage) {
-        return res.status(400).json({ message: "Please fill out all fields" });
-    }
-    next();
-};
-
-export const checkEmailReset = async (req, res, next) => {
-    if (!req.body || Object.keys(req.body).length === 0) {
-        return res
-            .status(400)
-            .json({ message: "Request body cannot be empty" });
-    }
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Invalid request." });
-    const emailFound = await emailExists(email);
-    if (!emailFound) {
-        return res.status(404).json({
-            error: "EmailNotFound",
-            message:
-                "The email you provided is not associated with any account.",
-        });
-    }
-    next();
-};
-
 export const checkPasswordUpdate = async (req, res, next) => {
     if (!req.body || Object.keys(req.body).length === 0) {
         return res
@@ -114,22 +90,16 @@ export const checkPasswordUpdate = async (req, res, next) => {
     next();
 };
 
-export const checkGetProfile = async (req, res, next) => {
-    const username = req.params.username;
-    if (!username) return res.status(400).json({ message: "Invalid Request" });
-    next();
-};
-
-export const checkSearchInput = async (req, res, next) => {
-    const searchVal = req.query.searchVal;
-    if (!searchVal) return res.status(400).json({ message: "Invalid Request" });
-    next();
-};
-
 export const authenticateToken = (req, res, next) => {
     const authHeader = req.headers["authorization"];
     const accessToken = authHeader && authHeader.split(" ")[1];
     if (accessToken == null) {
+        res.cookie("refreshToken", "", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            expires: new Date(0),
+        });
         return res.status(401).json({
             error: "Unauthorized",
             message:
@@ -147,40 +117,6 @@ export const authenticateToken = (req, res, next) => {
         req.user = user;
         next();
     });
-};
-
-export const authenticateForgetToken = (req, res, next) => {
-    const token = req.body.token;
-    if (!token) return res.status(400).json({ message: "Invalid Request" });
-    if (token == null) {
-        return res.status(401).json({
-            error: "Unauthorized",
-            message:
-                "Unauthorized - You don't have permissions to perfom this action...",
-        });
-    }
-    jwt.verify(token, process.env.FORGET_TOKEN_SECRET, (err, user) => {
-        if (err) {
-            return res.status(403).json({
-                error: "Unauthorized",
-                message:
-                    "Invalid token - You don't have permissions to perfom this action...",
-            });
-        }
-        req.user = user;
-        next();
-    });
-};
-
-export const checkResetPassword = (req, res, next) => {
-    if (!req.body || Object.keys(req.body).length === 0) {
-        return res
-            .status(400)
-            .json({ message: "Request body cannot be empty" });
-    }
-    const { newPass } = req.body;
-    if (!newPass) return res.status(400).json({ message: "Invalid request." });
-    next();
 };
 
 export const authenticateRefreshToken = async (req, res, next) => {

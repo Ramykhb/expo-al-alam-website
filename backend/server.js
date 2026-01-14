@@ -5,12 +5,20 @@ import multer from "multer";
 import pool from "./database/dbConfig.js";
 import authRouter from "./routers/authRouter.js";
 import cookieParser from "cookie-parser";
+import fs from "fs";
+import path from "path";
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
 const upload = multer();
+
+const UPLOAD_DIR = path.join(process.cwd(), "uploads", "vehicles");
+
+if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
 
 app.use(cookieParser());
 
@@ -24,6 +32,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use("/uploads", express.static("uploads"));
 
 app.use("/api/auth", authRouter);
 
@@ -77,13 +87,78 @@ app.get("/api/vehicles/:carId", async (req, res) => {
     }
 });
 
-app.post("/api/add-vehicle", upload.array("images"), (req, res) => {
-    console.log("req.body:", req.body); // form fields
-    console.log("req.files:", req.files); // uploaded files
+app.post("/api/add-vehicle", upload.array("images"), async (req, res) => {
+    try {
+        const {
+            name,
+            brand,
+            series,
+            year,
+            price,
+            mileage,
+            power,
+            transmission,
+            exterior,
+            interior,
+            mainImageIndex,
+        } = req.body;
 
-    // Your logic here
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: "No images uploaded",
+            });
+        }
 
-    res.json({ success: true });
+        const imagePaths = [];
+
+        req.files.forEach((file, index) => {
+            const ext = path.extname(file.originalname);
+            const filename = `${Date.now()}-${index}${ext}`;
+            const filepath = path.join(UPLOAD_DIR, filename);
+
+            fs.writeFileSync(filepath, file.buffer);
+
+            imagePaths.push(`/uploads/vehicles/${filename}`);
+        });
+
+        const mainIndex = parseInt(mainImageIndex, 10) || 0;
+        const [mainImage] = imagePaths.splice(mainIndex, 1);
+        imagePaths.unshift(mainImage);
+
+        const query = `
+            INSERT INTO Cars (
+                name, brand, series, year, price, mileage, power,
+                transmission, exterior_color, interior_color, image_links
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        await pool.query(query, [
+            name,
+            brand,
+            series,
+            year,
+            price,
+            mileage,
+            power,
+            transmission,
+            exterior,
+            interior,
+            JSON.stringify(imagePaths),
+        ]);
+
+        res.status(201).json({
+            success: true,
+            message: "Vehicle added successfully",
+        });
+    } catch (error) {
+        console.error("Add vehicle error:", error);
+        res.status(500).json({
+            success: false,
+            error: "Failed to add vehicle",
+        });
+    }
 });
 
 app.get("/api/vehicles", async (req, res) => {

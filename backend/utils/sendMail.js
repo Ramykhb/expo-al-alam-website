@@ -55,7 +55,7 @@ export const generateContactEmail = (fullName, email, message) => {
                 <div class="label">Client Identity</div>
                 <div class="value">${fullName}</div>
 
-                <div class="label">Secure Channel</div>
+                <div class="label">Client's Email</div>
                 <div class="value">${email}</div>
 
                 <div class="label">Inquiry Transmission</div>

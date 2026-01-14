@@ -33,8 +33,6 @@ authRouter.put(
 
 authRouter.get("/status", checkStatus);
 
-authRouter.get("/user", authenticateToken, getUser);
-
 authRouter.post("/refresh", authenticateRefreshToken, refreshToken);
 
 authRouter.post("/logout", logout);
