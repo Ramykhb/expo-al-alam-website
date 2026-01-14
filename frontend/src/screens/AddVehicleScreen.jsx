@@ -10,7 +10,7 @@ import {
     Info,
     Loader2,
 } from "lucide-react";
-import axios from "axios";
+import api from "../../config/axios";
 
 const AddVehicleScreen = () => {
     const [images, setImages] = useState([]);
@@ -84,13 +84,9 @@ const AddVehicleScreen = () => {
                 if (img.isMain) data.append("mainImageIndex", index);
             });
 
-            const response = await axios.post(
-                "http://localhost:3000/api/add-vehicle",
-                data,
-                {
-                    headers: { "Content-Type": "multipart/form-data" },
-                }
-            );
+            const response = await api.post("/add-vehicle", data, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
 
             if (response.data.success) {
                 setStatus("Success");

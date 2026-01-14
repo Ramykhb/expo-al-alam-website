@@ -44,7 +44,7 @@ const MainScreen = () => {
                 <NavBar />
 
                 <div
-                    className="flex flex-col flex-1 px-8 md:px-20 pt-10 md:pt-7 mt-10 md:mt-20 z-10 text-center md:text-left items-center md:items-start"
+                    className="flex flex-col flex-1 px-8 md:px-20 pt-10 md:pt-7 mt-10 md:mt-[5%] z-10 text-center md:text-left items-center md:items-start"
                     style={{ fontFamily: "Oswald" }}
                 >
                     <h1 className="text-white text-6xl md:text-7xl font-black mb-6 md:mb-8 uppercase italic tracking-tight opacity-0 animate-[slideRightFade_1s_cubic-bezier(0.16,1,0.3,1)_0.2s_forwards]">

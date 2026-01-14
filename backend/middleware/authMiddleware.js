@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import {
-    emailExists,
     getPassword,
     tokenExists,
     usernameExists,
@@ -13,8 +12,8 @@ export const checkSignup = async (req, res, next) => {
             .status(400)
             .json({ message: "Request body cannot be empty" });
     }
-    const { username, email, name, password } = req.body;
-    if (!username || !email || !name || !password) {
+    const { username, password } = req.body;
+    if (!username || !password) {
         return res.status(400).json({ message: "Please fill out all fields" });
     }
     try {
@@ -27,14 +26,6 @@ export const checkSignup = async (req, res, next) => {
                 message: "The username is already taken...",
             });
         }
-        const emailFound = await emailExists(req.body.email);
-        if (emailFound) {
-            return res.status(409).json({
-                error: "EmailAlreadyUsed",
-                message: "The email you provided is already registered...",
-            });
-        }
-
         next();
     } catch (error) {
         return res

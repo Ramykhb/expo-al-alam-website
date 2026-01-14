@@ -4,6 +4,7 @@ import NavBar from "../components/NavBar";
 import { ArrowUpRight, Crosshair, Search, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import api from "../../config/axios";
 
 const CollectionScreen = () => {
     const [cars, setCars] = useState([]);
@@ -28,9 +29,7 @@ const CollectionScreen = () => {
     useEffect(() => {
         const fetchCars = async () => {
             try {
-                const res = await axios.get(
-                    "http://localhost:3000/api/vehicles"
-                );
+                const res = await api.get("/vehicles");
                 setCars(res.data.cars || []);
             } catch (error) {
                 console.error("Vault connection error:", error);

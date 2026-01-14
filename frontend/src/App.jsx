@@ -7,20 +7,26 @@ import CollectionScreen from "./screens/CollectionScreen";
 import SingleVehicleScreen from "./screens/SingleVehicleScreen";
 import LoginScreen from "./screens/LoginScreen";
 import AddVehicleScreen from "./screens/AddVehicleScreen";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<MainScreen />} />
-                <Route path="/about-us" element={<AboutUsScreen />} />
-                <Route path="/contact-us" element={<ContactUsScreen />} />
-                <Route path="/collection" element={<CollectionScreen />} />
-                <Route path="/login" element={<LoginScreen />} />
-                <Route path="/add-vehicle" element={<AddVehicleScreen />} />
-                <Route path="/vehicle/:id" element={<SingleVehicleScreen />} />
-            </Routes>
-        </BrowserRouter>
+        <Routes>
+            <Route path="/" element={<MainScreen />} />
+            <Route path="/about-us" element={<AboutUsScreen />} />
+            <Route path="/contact-us" element={<ContactUsScreen />} />
+            <Route path="/collection" element={<CollectionScreen />} />
+            <Route path="/login" element={<LoginScreen />} />
+            <Route
+                path="/add-vehicle"
+                element={
+                    <ProtectedRoute>
+                        <AddVehicleScreen />
+                    </ProtectedRoute>
+                }
+            />
+            <Route path="/vehicle/:id" element={<SingleVehicleScreen />} />
+        </Routes>
     );
 }
 

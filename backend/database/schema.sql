@@ -1,12 +1,7 @@
 CREATE TABLE Users (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100),
-    bio VARCHAR(255),
     username VARCHAR(40) UNIQUE,
-    email VARCHAR(40) UNIQUE,
-    password VARCHAR(60),
-    profileImage VARCHAR(100),
-    isPublic BOOLEAN
+    password VARCHAR(60)
 );
 
 CREATE TABLE Cars (

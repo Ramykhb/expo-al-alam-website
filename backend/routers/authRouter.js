@@ -4,13 +4,7 @@ import {
     authenticateToken,
     authenticateRefreshToken,
     checkLogin,
-    checkProfileEdit,
     checkPasswordUpdate,
-    checkGetProfile,
-    checkSearchInput,
-    checkEmailReset,
-    authenticateForgetToken,
-    checkResetPassword,
 } from "../middleware/authMiddleware.js";
 import {
     changePassword,
@@ -19,14 +13,7 @@ import {
     logout,
     refreshToken,
     signup,
-    getProfile,
-    getProfiles,
     getUser,
-    editProfile,
-    accountDeletion,
-    forgetPassword,
-    checkForgetToken,
-    resetPassword,
 } from "../controllers/authController.js";
 
 const authRouter = express.Router();
@@ -51,7 +38,5 @@ authRouter.get("/user", authenticateToken, getUser);
 authRouter.post("/refresh", authenticateRefreshToken, refreshToken);
 
 authRouter.post("/logout", logout);
-
-authRouter.delete("/delete-account", authenticateToken, accountDeletion);
 
 export default authRouter;

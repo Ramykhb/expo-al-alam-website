@@ -13,6 +13,7 @@ import {
     Droplets,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
+import api from "../../config/axios";
 
 const SingleVehicleScreen = () => {
     const [activeImg, setActiveImg] = useState(0);
@@ -23,9 +24,7 @@ const SingleVehicleScreen = () => {
     useEffect(() => {
         const fetchCarData = async () => {
             try {
-                const res = await axios.get(
-                    `http://localhost:3000/api/vehicles/${carId}`
-                );
+                const res = await api.get(`/vehicles/${carId}`);
                 const carData = res.data.car;
 
                 const formattedCar = {

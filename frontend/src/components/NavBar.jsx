@@ -1,17 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import api from "../../config/axios.js";
 
 const NavBar = () => {
     const [isOpen, setIsOpen] = useState(false);
-
-    const navItems = [
+    const [navItems, setNavItems] = useState([
         { name: "COLLECTION", path: "/collection" },
         { name: "ABOUT US", path: "/about-us" },
         { name: "CONTACT US", path: "/contact-us" },
         { name: "LOGIN", path: "/login" },
-    ];
+    ]);
+
+    useEffect(() => {
+        const checkLoggedIn = async () => {
+            const res = await api.get("/auth/status");
+            if (res.data.loggedIn) {
+                setNavItems([
+                    { name: "COLLECTION", path: "/collection" },
+                    { name: "ABOUT US", path: "/about-us" },
+                    { name: "ADD VEHICLE", path: "/add-vehicle" },
+                    { name: "LOGOUT", path: "/logout" },
+                ]);
+            }
+        };
+
+        checkLoggedIn();
+    }, []);
 
     return (
         <nav className="relative z-[100]">
@@ -26,12 +42,25 @@ const NavBar = () => {
                 <ul className="hidden lg:flex flex-row items-center gap-8 xl:gap-16 text-white lg:text-xl xl:text-2xl">
                     {navItems.map((item) => (
                         <li key={item.name} className="relative group py-2">
-                            <Link
-                                to={item.path}
-                                className="text-white tracking-widest"
-                            >
-                                {item.name}
-                            </Link>
+                            {item.name === "LOGOUT" ? (
+                                <button
+                                    onClick={async () => {
+                                        await api.post("/auth/logout");
+                                        localStorage.removeItem("accessToken");
+                                        window.location.href = "/";
+                                    }}
+                                    className="text-white tracking-widest"
+                                >
+                                    {item.name}
+                                </button>
+                            ) : (
+                                <Link
+                                    to={item.path}
+                                    className="text-white tracking-widest"
+                                >
+                                    {item.name}
+                                </Link>
+                            )}
                             <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-white transition-all duration-300 ease-in-out group-hover:w-full"></span>
                         </li>
                     ))}

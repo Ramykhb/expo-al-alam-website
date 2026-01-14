@@ -10,6 +10,7 @@ import {
     CheckCircle2,
 } from "lucide-react";
 import axios from "axios";
+import api from "../../config/axios";
 
 const ContactUsScreen = () => {
     const [formState, setFormState] = useState({
@@ -39,10 +40,7 @@ const ContactUsScreen = () => {
         setStatus({ type: "loading", message: "Transmitting manifest..." });
 
         try {
-            const res = await axios.post(
-                "http://localhost:3000/api/contact",
-                formState
-            );
+            const res = await api.post("/contact", formState);
             const response = res.data;
             if (response.success) {
                 setStatus({

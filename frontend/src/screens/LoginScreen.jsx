@@ -3,15 +3,46 @@ import { motion } from "framer-motion";
 import NavBar from "../components/NavBar";
 import { Lock, User, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router";
+import api from "../../config/axios";
+import { useEffect } from "react";
 
 const LoginScreen = () => {
     const navigate = useNavigate();
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
 
-    const handleLogin = (e) => {
+    useEffect(() => {
+        const checkLoggedIn = async () => {
+            const res = await api.get("/auth/status");
+            if (res.data.loggedIn) {
+                localStorage.setItem("accessToken", res.data.accessToken);
+                navigate("/");
+            }
+        };
+
+        checkLoggedIn();
+    }, []);
+
+    const handleLogin = async (e) => {
         e.preventDefault();
-        console.log("Authenticating...");
+        if (!username || !password) {
+            setPasswordError("Please fill out all the required data...");
+            return;
+        }
+        try {
+            const res = await api.post("/auth/login", {
+                username: username,
+                password: password,
+            });
+            localStorage.setItem("accessToken", res.data.accessToken);
+            navigate("/");
+        } catch (err) {
+            if (err.response) {
+                const { error, message } = err.response.data;
+                setPasswordError(message);
+            }
+        }
     };
 
     return (
@@ -57,10 +88,12 @@ const LoginScreen = () => {
                                     size={16}
                                 />
                                 <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="EMAIL ADDRESS"
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) =>
+                                        setUsername(e.target.value)
+                                    }
+                                    placeholder="USERNAME"
                                     className="w-full h-14 bg-white/5 border border-white/10 px-12 text-xs font-bold tracking-widest placeholder:text-zinc-700 focus:outline-none focus:border-white/40 transition-all uppercase"
                                     required
                                 />
@@ -88,6 +121,10 @@ const LoginScreen = () => {
                                 />
                             </div>
                         </div>
+
+                        <p className="text-red-400 text-xs text-center">
+                            {passwordError}
+                        </p>
 
                         <motion.button
                             type="submit"

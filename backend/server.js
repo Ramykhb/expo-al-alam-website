@@ -3,12 +3,16 @@ import { generateContactEmail, sendEmail } from "./utils/sendMail.js";
 import cors from "cors";
 import multer from "multer";
 import pool from "./database/dbConfig.js";
+import authRouter from "./routers/authRouter.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
 const upload = multer();
+
+app.use(cookieParser());
 
 app.use(
     cors({
@@ -20,6 +24,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use("/api/auth", authRouter);
 
 app.post("/api/contact", async (req, res) => {
     const { name, email, message } = req.body;

@@ -1,0 +1,62 @@
+import { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import api from "../../config/axios.js";
+
+function ProtectedRoute({ children, onUser }) {
+    const [isReady, setIsReady] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        const verify = async () => {
+            const token = localStorage.getItem("accessToken");
+            if (!token) {
+                setIsAuthenticated(false);
+                setIsReady(true);
+                return;
+            }
+
+            try {
+                const decoded = jwtDecode(token);
+                const expired = Date.now() / 1000 > decoded.exp;
+
+                if (expired) {
+                    try {
+                        const res = await api.post("/auth/refresh", {
+                            accessToken: token,
+                        });
+                        localStorage.setItem(
+                            "accessToken",
+                            res.data.accessToken
+                        );
+                        setIsAuthenticated(true);
+                    } catch {
+                        setIsAuthenticated(false);
+                    }
+                } else {
+                    setIsAuthenticated(true);
+                }
+            } catch {
+                setIsAuthenticated(false);
+            }
+
+            setIsReady(true);
+        };
+
+        verify();
+    }, []);
+
+    if (!isReady)
+        return (
+            <div className="w-full h-[100dvh] flex flex-col items-center justify-center">
+                <img src="/spinner.svg" className="w-[20%] mx-auto" />
+                <h1 className="text-xl text-center dark:text-gray-300 text-gray-800">
+                    Launching Lumea.
+                </h1>
+            </div>
+        );
+
+    return isAuthenticated ? children : <Navigate to="/login" replace />;
+}
+
+export default ProtectedRoute;
