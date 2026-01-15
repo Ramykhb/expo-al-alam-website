@@ -14,7 +14,8 @@ const LoginScreen = () => {
 
     useEffect(() => {
         const checkLoggedIn = async () => {
-            const res = await api.get("/auth/status");
+            const refreshToken = localStorage.getItem("refreshToken");
+            const res = await api.get("/auth/status", { refreshToken });
             if (res.data.loggedIn) {
                 localStorage.setItem("accessToken", res.data.accessToken);
                 navigate("/");
@@ -36,6 +37,7 @@ const LoginScreen = () => {
                 password: password,
             });
             localStorage.setItem("accessToken", res.data.accessToken);
+            localStorage.setItem("refreshToken", res.data.refreshToken);
             navigate("/");
         } catch (err) {
             if (err.response) {

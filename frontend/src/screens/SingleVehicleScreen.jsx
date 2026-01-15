@@ -50,7 +50,8 @@ const SingleVehicleScreen = () => {
     useEffect(() => {
         const checkLoggedIn = async () => {
             try {
-                const res = await api.get("/auth/status");
+                const refreshToken = localStorage.getItem("refreshToken");
+                const res = await api.get("/auth/status", { refreshToken });
                 if (res.data.loggedIn) {
                     setIsAdmin(true);
                 }

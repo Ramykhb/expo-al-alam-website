@@ -23,6 +23,7 @@ const processQueue = (error, token = null) => {
 
 api.interceptors.request.use(async (config) => {
     const token = localStorage.getItem("accessToken");
+    const refreshTok = localStorage.getItem("refreshToken");
     if (token) {
         try {
             const decoded = jwtDecode(token);
@@ -36,7 +37,7 @@ api.interceptors.request.use(async (config) => {
                 try {
                     const res = await axios.post(
                         `${backendPath}/api/auth/refresh`,
-                        { accessToken: token },
+                        { accessToken: token, refreshToken: refreshTok },
                         { withCredentials: true }
                     );
 
@@ -50,6 +51,7 @@ api.interceptors.request.use(async (config) => {
                 } catch (err) {
                     processQueue(err, null);
                     localStorage.removeItem("accessToken");
+                    localStorage.removeItem("refreshToken");
                     window.location.href = "/login";
                 } finally {
                     isRefreshing = false;
@@ -69,6 +71,7 @@ api.interceptors.request.use(async (config) => {
             }
         } catch {
             localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
             window.location.href = "/login";
         }
     }

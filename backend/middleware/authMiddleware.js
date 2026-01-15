@@ -94,12 +94,6 @@ export const authenticateToken = (req, res, next) => {
     const authHeader = req.headers["authorization"];
     const accessToken = authHeader && authHeader.split(" ")[1];
     if (accessToken == null) {
-        res.cookie("refreshToken", "", {
-            httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-            expires: new Date(0),
-        });
         return res.status(401).json({
             error: "Unauthorized",
             message:
@@ -120,7 +114,7 @@ export const authenticateToken = (req, res, next) => {
 };
 
 export const authenticateRefreshToken = async (req, res, next) => {
-    const token = req.cookies.refreshToken;
+    const token = req.body.refreshToken;
     if (token == null) {
         return res.status(401).json({
             error: "Unauthorized",

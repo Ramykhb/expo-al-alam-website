@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../config/axios.js";
+import { refreshToken } from "../../../backend/controllers/authController.js";
 
 const NavBar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,8 @@ const NavBar = () => {
 
     useEffect(() => {
         const checkLoggedIn = async () => {
-            const res = await api.get("/auth/status");
+            const refreshToken = localStorage.getItem("refreshToken");
+            const res = await api.get("/auth/status", { refreshToken });
             if (res.data.loggedIn) {
                 setNavItems([
                     { name: "COLLECTION", path: "/collection" },
@@ -46,7 +48,13 @@ const NavBar = () => {
                                 <button
                                     onClick={async () => {
                                         localStorage.removeItem("accessToken");
-                                        await api.post("/auth/logout");
+                                        await api.post("/auth/logout", {
+                                            refreshToken:
+                                                localStorage.getItem(
+                                                    "refreshToken"
+                                                ),
+                                        });
+                                        localStorage.removeItem("refreshToken");
                                         window.location.href = "/";
                                     }}
                                     className="text-white tracking-widest hover:cursor-pointer"
@@ -111,7 +119,16 @@ const NavBar = () => {
                                                         "accessToken"
                                                     );
                                                     await api.post(
-                                                        "/auth/logout"
+                                                        "/auth/logout",
+                                                        {
+                                                            refreshToken:
+                                                                localStorage.getItem(
+                                                                    "refreshToken"
+                                                                ),
+                                                        }
+                                                    );
+                                                    localStorage.removeItem(
+                                                        "refreshToken"
                                                     );
                                                     window.location.href = "/";
                                                 }}

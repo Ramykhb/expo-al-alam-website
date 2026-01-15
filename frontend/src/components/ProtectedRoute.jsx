@@ -10,6 +10,7 @@ function ProtectedRoute({ children, onUser }) {
     useEffect(() => {
         const verify = async () => {
             const token = localStorage.getItem("accessToken");
+            const refreshTok = localStorage.getItem("refreshToken");
             if (!token) {
                 setIsAuthenticated(false);
                 setIsReady(true);
@@ -24,6 +25,7 @@ function ProtectedRoute({ children, onUser }) {
                     try {
                         const res = await api.post("/auth/refresh", {
                             accessToken: token,
+                            refreshToken: refreshTok,
                         });
                         localStorage.setItem(
                             "accessToken",
