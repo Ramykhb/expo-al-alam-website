@@ -7,6 +7,7 @@ import authRouter from "./routers/authRouter.js";
 import cookieParser from "cookie-parser";
 import fs from "fs";
 import path from "path";
+import { authenticateToken } from "./middleware/authMiddleware.js";
 
 const app = express();
 
@@ -87,46 +88,50 @@ app.get("/api/vehicles/:carId", async (req, res) => {
     }
 });
 
-app.post("/api/add-vehicle", upload.array("images"), async (req, res) => {
-    try {
-        const {
-            name,
-            brand,
-            series,
-            year,
-            price,
-            mileage,
-            power,
-            transmission,
-            exterior,
-            interior,
-            mainImageIndex,
-        } = req.body;
+app.post(
+    "/api/vehicles/add-vehicle",
+    authenticateToken,
+    upload.array("images"),
+    async (req, res) => {
+        try {
+            const {
+                name,
+                brand,
+                series,
+                year,
+                price,
+                mileage,
+                power,
+                transmission,
+                exterior,
+                interior,
+                mainImageIndex,
+            } = req.body;
 
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({
-                success: false,
-                error: "No images uploaded",
+            if (!req.files || req.files.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    error: "No images uploaded",
+                });
+            }
+
+            const imagePaths = [];
+
+            req.files.forEach((file, index) => {
+                const ext = path.extname(file.originalname);
+                const filename = `${Date.now()}-${index}${ext}`;
+                const filepath = path.join(UPLOAD_DIR, filename);
+
+                fs.writeFileSync(filepath, file.buffer);
+
+                imagePaths.push(`/uploads/vehicles/${filename}`);
             });
-        }
 
-        const imagePaths = [];
+            const mainIndex = parseInt(mainImageIndex, 10) || 0;
+            const [mainImage] = imagePaths.splice(mainIndex, 1);
+            imagePaths.unshift(mainImage);
 
-        req.files.forEach((file, index) => {
-            const ext = path.extname(file.originalname);
-            const filename = `${Date.now()}-${index}${ext}`;
-            const filepath = path.join(UPLOAD_DIR, filename);
-
-            fs.writeFileSync(filepath, file.buffer);
-
-            imagePaths.push(`/uploads/vehicles/${filename}`);
-        });
-
-        const mainIndex = parseInt(mainImageIndex, 10) || 0;
-        const [mainImage] = imagePaths.splice(mainIndex, 1);
-        imagePaths.unshift(mainImage);
-
-        const query = `
+            const query = `
             INSERT INTO Cars (
                 name, brand, series, year, price, mileage, power,
                 transmission, exterior_color, interior_color, image_links
@@ -134,30 +139,51 @@ app.post("/api/add-vehicle", upload.array("images"), async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        await pool.query(query, [
-            name,
-            brand,
-            series,
-            year,
-            price,
-            mileage,
-            power,
-            transmission,
-            exterior,
-            interior,
-            JSON.stringify(imagePaths),
+            await pool.query(query, [
+                name,
+                brand,
+                series,
+                year,
+                price,
+                mileage,
+                power,
+                transmission,
+                exterior,
+                interior,
+                JSON.stringify(imagePaths),
+            ]);
+
+            res.status(201).json({
+                success: true,
+                message: "Vehicle added successfully",
+            });
+        } catch (error) {
+            console.error("Add vehicle error:", error);
+            res.status(500).json({
+                success: false,
+                error: "Failed to add vehicle",
+            });
+        }
+    }
+);
+
+app.delete("/api/vehicles/:id", authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [result] = await pool.query("DELETE FROM Cars WHERE id = ?", [
+            id,
         ]);
 
-        res.status(201).json({
-            success: true,
-            message: "Vehicle added successfully",
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+        res.status(200).json({
+            message: "Vehicle successfully removed from vault",
         });
     } catch (error) {
-        console.error("Add vehicle error:", error);
-        res.status(500).json({
-            success: false,
-            error: "Failed to add vehicle",
-        });
+        console.error(error);
+        res.status(500).json({ message: "Server error during deletion" });
     }
 });
 
@@ -191,6 +217,53 @@ app.get("/api/vehicles", async (req, res) => {
             success: false,
             error: "Failed to retrieve the collection from the vault.",
         });
+    }
+});
+
+app.put("/api/vehicles/:id", authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateData = req.body;
+
+        const result = await pool.query(
+            `UPDATE Cars SET 
+                name = ?, brand = ?, series = ?, year = ?, price = ?, 
+                mileage = ?, power = ?, transmission = ?, 
+                exterior_color = ?, interior_color = ? 
+            WHERE id = ?`,
+            [
+                updateData.name,
+                updateData.brand,
+                updateData.series,
+                updateData.year,
+                updateData.price,
+                updateData.mileage,
+                updateData.power,
+                updateData.transmission,
+                updateData.exterior_color,
+                updateData.interior_color,
+                id,
+            ]
+        );
+
+        const [updatedRows] = await pool.query(
+            "SELECT * FROM Cars WHERE id = ?",
+            [id]
+        );
+
+        const updatedVehicle = updatedRows[0];
+
+        if (!updatedVehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+
+        res.status(200).json({
+            message: "Vehicle updated successfully",
+            car: updatedVehicle,
+        });
+    } catch (error) {
+        console.error("Update error:", error);
+        res.status(500).json({ message: "Failed to update vehicle details" });
     }
 });
 

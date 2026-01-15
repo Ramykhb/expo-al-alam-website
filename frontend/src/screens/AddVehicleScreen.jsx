@@ -86,7 +86,7 @@ const AddVehicleScreen = () => {
                 if (img.isMain) data.append("mainImageIndex", index);
             });
 
-            const response = await api.post("/add-vehicle", data, {
+            const response = await api.post("/vehicles/add-vehicle", data, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 

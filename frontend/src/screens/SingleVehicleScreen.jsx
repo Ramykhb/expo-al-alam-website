@@ -66,11 +66,30 @@ const SingleVehicleScreen = () => {
     };
 
     const handleSave = async () => {
-        setIsEditing(false);
+        try {
+            const res = await api.put(`/vehicles/${carId}`, car);
+
+            if (res.status === 200) {
+                setIsEditing(false);
+                setCar({
+                    ...res.data.car,
+                    images: res.data.car.image_links || [],
+                });
+                alert("Changes saved successfully.");
+            }
+        } catch (error) {
+            console.error("Error saving vehicle data:", error);
+            alert("Failed to save changes. Please check your connection.");
+        }
     };
 
     const handleDelete = async () => {
         if (window.confirm("Confirm deletion of this unit?")) {
+            try {
+                const res = await api.delete(`/vehicles/${carId}`);
+            } catch (error) {
+                console.error("Error deleting vehicle:", error);
+            }
             navigate("/collection");
         }
     };
@@ -114,14 +133,11 @@ const SingleVehicleScreen = () => {
 
     return (
         <div className="w-full h-screen bg-[#080808] text-white flex flex-col overflow-y-auto md:overflow-hidden">
-            {/* Header: Fixed 15% height on desktop */}
             <div className="md:h-[15vh] shrink-0">
                 <NavBar />
             </div>
 
-            {/* Main Section */}
             <main className="flex-1 flex flex-col md:flex-row bg-[#080808] md:h-[75vh] md:overflow-hidden">
-                {/* Left: Images */}
                 <section className="w-full md:flex-1 flex flex-col p-4 md:p-6 pb-2 gap-3 shrink-0 md:min-h-0">
                     <nav className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.3em] text-zinc-500 font-sans px-2">
                         <span
@@ -195,10 +211,7 @@ const SingleVehicleScreen = () => {
                         ))}
                     </div>
                 </section>
-
-                {/* Right: Specs & Actions */}
                 <section className="w-full md:flex-[0.8] flex flex-col md:border-l border-white/5 bg-[#080808] md:h-full">
-                    {/* Brand & Name (Static) */}
                     <div className="px-6 md:px-8 pt-6 md:pt-10 pb-4 shrink-0">
                         {isEditing ? (
                             <input
