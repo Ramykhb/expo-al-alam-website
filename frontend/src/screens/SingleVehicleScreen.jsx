@@ -11,15 +11,12 @@ import {
     Palette,
     Droplets,
     Trash2,
-    Edit3,
-    Check,
     X,
-    ShoppingBag,
-    PenTool,
-    Save,
     MessageCircle,
     AlertCircle,
     CheckCircle2,
+    Save,
+    PenTool,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import api from "../../config/axios";
@@ -29,8 +26,9 @@ const SingleVehicleScreen = () => {
     const [activeImg, setActiveImg] = useState(0);
     const { id: carId } = useParams();
     const navigate = useNavigate();
-    const [car, setCar] = useState(null);
 
+    const [car, setCar] = useState(null);
+    const [backupCar, setBackupCar] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [status, setStatus] = useState({ type: "", message: "" });
     const [isEditing, setIsEditing] = useState(false);
@@ -40,10 +38,12 @@ const SingleVehicleScreen = () => {
             try {
                 const res = await api.get(`/vehicles/${carId}`);
                 const carData = res.data.car;
-                setCar({
+                const formattedCar = {
                     ...carData,
                     images: carData.image_links || [],
-                });
+                };
+                setCar(formattedCar);
+                setBackupCar(formattedCar);
             } catch (error) {
                 console.error("Error fetching car data:", error);
             }
@@ -80,11 +80,13 @@ const SingleVehicleScreen = () => {
             const res = await api.put(`/vehicles/${carId}`, car);
 
             if (res.status === 200) {
-                setIsEditing(false);
-                setCar({
+                const updatedCar = {
                     ...res.data.car,
                     images: res.data.car.image_links || [],
-                });
+                };
+                setIsEditing(false);
+                setCar(updatedCar);
+                setBackupCar(updatedCar);
                 setStatus({
                     type: "success",
                     message: "Changes saved successfully.",
@@ -100,14 +102,18 @@ const SingleVehicleScreen = () => {
         }
     };
 
+    const handleDismiss = () => {
+        setCar(backupCar);
+        setIsEditing(false);
+        setStatus({ type: "", message: "" });
+    };
+
     const handleDelete = async () => {
-        if (window.confirm("Confirm deletion of this unit?")) {
-            try {
-                const res = await api.delete(`/vehicles/${carId}`);
-            } catch (error) {
-                console.error("Error deleting vehicle:", error);
-            }
+        try {
+            await api.delete(`/vehicles/${carId}`);
             navigate("/collection");
+        } catch (error) {
+            console.error("Error deleting vehicle:", error);
         }
     };
 
@@ -228,6 +234,7 @@ const SingleVehicleScreen = () => {
                         ))}
                     </div>
                 </section>
+
                 <section className="w-full md:flex-[0.8] flex flex-col md:border-l border-white/5 bg-[#080808] md:h-full">
                     <div className="px-6 md:px-8 pt-6 md:pt-10 pb-4 shrink-0">
                         {isEditing ? (
@@ -328,7 +335,7 @@ const SingleVehicleScreen = () => {
                                 initial={{ opacity: 0, y: 5 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -5 }}
-                                className={`flex items-center gap-2 mb-5 w-full px-10 text-[10px] font-bold uppercase tracking-widest px-1 ${
+                                className={`flex items-center gap-2 mb-5 w-full px-10 text-[10px] font-bold uppercase tracking-widest ${
                                     status.type === "success"
                                         ? "text-emerald-500"
                                         : status.type === "loading"
@@ -359,7 +366,7 @@ const SingleVehicleScreen = () => {
                                             <Save size={14} /> Save Changes
                                         </button>
                                         <button
-                                            onClick={() => setIsEditing(false)}
+                                            onClick={handleDismiss}
                                             className="w-14 h-12 border border-white/10 text-white flex items-center justify-center"
                                         >
                                             <X size={16} />
@@ -406,13 +413,12 @@ const SingleVehicleScreen = () => {
                 <span className="text-black text-[10px] tracking-[0.3em] uppercase font-bold font-sans">
                     © Expo Al Alam
                 </span>
-
                 <div className="h-px flex-1 mx-10 bg-black/10 hidden md:block" />
-
                 <div className="flex items-center gap-8">
                     <a
                         href="https://instagram.com/expoalam"
                         target="_blank"
+                        rel="noreferrer"
                         className="block transition-transform duration-300 hover:scale-110"
                     >
                         <img
@@ -424,6 +430,7 @@ const SingleVehicleScreen = () => {
                     <a
                         href="https://tiktok.com/@alalamcars"
                         target="_blank"
+                        rel="noreferrer"
                         className="block transition-transform duration-300 hover:scale-110"
                     >
                         <img
@@ -435,6 +442,7 @@ const SingleVehicleScreen = () => {
                     <a
                         href="https://wa.me/96181039626"
                         target="_blank"
+                        rel="noreferrer"
                         className="block transition-transform duration-300 hover:scale-110"
                     >
                         <img
