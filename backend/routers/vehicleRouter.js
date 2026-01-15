@@ -8,6 +8,11 @@ import {
     getSingleVehicle,
     updateVehicle,
 } from "../controllers/vehicleController.js";
+import {
+    addVehicleMiddleWare,
+    singleVehicleMiddleWare,
+    updateVehicleMiddleware,
+} from "../middleware/vehicleMiddleware.js";
 
 const vehicleRouter = express.Router();
 
@@ -15,19 +20,30 @@ const upload = multer();
 
 vehicleRouter.use(express.json());
 
-vehicleRouter.get("/:carId", getSingleVehicle);
+vehicleRouter.get("/", getAllVehicles);
+
+vehicleRouter.get("/:id", singleVehicleMiddleWare, getSingleVehicle);
 
 vehicleRouter.post(
     "/add-vehicle",
     authenticateToken,
     upload.array("images"),
+    addVehicleMiddleWare,
     addVehicle
 );
 
-vehicleRouter.delete("/:id", authenticateToken, deleteVehicle);
+vehicleRouter.delete(
+    "/:id",
+    authenticateToken,
+    singleVehicleMiddleWare,
+    deleteVehicle
+);
 
-vehicleRouter.get("/", getAllVehicles);
-
-vehicleRouter.put("/:id", authenticateToken, updateVehicle);
+vehicleRouter.put(
+    "/:id",
+    authenticateToken,
+    updateVehicleMiddleware,
+    updateVehicle
+);
 
 export default vehicleRouter;

@@ -50,10 +50,10 @@ export const updateVehicle = async (req, res) => {
 };
 
 export const getSingleVehicle = async (req, res) => {
-    const { carId } = req.params;
+    const { id } = req.params;
 
     try {
-        const car = await getVehicleById(carId);
+        const car = await getVehicleById(id);
 
         if (!car) {
             return res
@@ -73,12 +73,6 @@ export const getSingleVehicle = async (req, res) => {
 export const addVehicle = async (req, res) => {
     try {
         const { mainImageIndex } = req.body;
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({
-                success: false,
-                error: "No images uploaded",
-            });
-        }
 
         const imagePaths = [];
 
