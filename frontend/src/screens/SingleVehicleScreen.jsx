@@ -17,6 +17,7 @@ import {
     ShoppingBag,
     PenTool,
     Save,
+    MessageCircle,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import api from "../../config/axios";
@@ -352,7 +353,7 @@ const SingleVehicleScreen = () => {
                                 }}
                                 className="w-full h-12 bg-white text-black font-bold uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-2 active:scale-95"
                             >
-                                <ShoppingBag size={16} /> Purchase Car
+                                <MessageCircle size={16} /> More Info
                             </button>
                         )}
                     </div>
