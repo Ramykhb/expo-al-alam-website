@@ -5,6 +5,7 @@ import { ArrowUpRight, Crosshair, Search, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import api from "../../config/axios";
+import { backendPath } from "../../config/backConfig";
 
 const CollectionScreen = () => {
     const [cars, setCars] = useState([]);
