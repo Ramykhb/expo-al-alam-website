@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import NavBar from "../components/NavBar";
-import { Lock, User, ChevronRight } from "lucide-react";
+import { Lock, User, ChevronRight, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router";
 import api from "../../config/axios";
 import { useEffect } from "react";
@@ -11,6 +11,7 @@ const LoginScreen = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const checkLoggedIn = async () => {
@@ -29,10 +30,12 @@ const LoginScreen = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        if (loading) return;
         if (!username || !password) {
             setPasswordError("Please fill out all the required data...");
             return;
         }
+        setLoading(true);
         try {
             const res = await api.post("/auth/login", {
                 username: username,
@@ -46,6 +49,8 @@ const LoginScreen = () => {
                 const { error, message } = err.response.data;
                 setPasswordError(message);
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -94,9 +99,10 @@ const LoginScreen = () => {
                                 <input
                                     type="text"
                                     value={username}
-                                    onChange={(e) =>
-                                        setUsername(e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        setPasswordError("");
+                                        setUsername(e.target.value);
+                                    }}
                                     placeholder="USERNAME"
                                     className="w-full h-14 bg-white/5 border border-white/10 px-12 text-xs font-bold tracking-widest placeholder:text-zinc-700 focus:outline-none focus:border-white/40 transition-all uppercase"
                                     required
@@ -116,9 +122,10 @@ const LoginScreen = () => {
                                 <input
                                     type="password"
                                     value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        setPasswordError("");
+                                        setPassword(e.target.value);
+                                    }}
                                     placeholder="••••••••"
                                     className="w-full h-14 bg-white/5 border border-white/10 px-12 text-xs font-bold tracking-widest placeholder:text-zinc-700 focus:outline-none focus:border-white/40 transition-all"
                                     required
@@ -126,16 +133,24 @@ const LoginScreen = () => {
                             </div>
                         </div>
 
-                        <p className="text-red-400 text-xs text-center">
-                            {passwordError}
-                        </p>
+                        <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-1 text-rose-500`}
+                        >
+                            {passwordError && <AlertCircle size={14} />}
+                            {passwordError && <span>{passwordError}</span>}
+                        </motion.div>
 
                         <motion.button
                             type="submit"
                             initial="initial"
                             whileHover="hover"
                             whileTap="pressed"
-                            className="w-full h-14 bg-white text-black font-bold uppercase text-[10px] tracking-[0.3em] flex items-center justify-between px-8 transition-colors relative overflow-hidden mt-8 hover:cursor-pointer"
+                            className={`w-full h-14 bg-white text-black font-bold uppercase text-[10px] tracking-[0.3em] flex items-center justify-between px-8 transition-colors relative overflow-hidden mt-8 hover:cursor-pointer ${
+                                loading ? "opacity-50 cursor-not-allowed" : ""
+                            }`}
                         >
                             <motion.div
                                 variants={{
@@ -146,7 +161,9 @@ const LoginScreen = () => {
                                 className="absolute inset-0 bg-zinc-200 z-0"
                             />
 
-                            <span className="relative z-10">Authenticate</span>
+                            <span className="relative z-10">
+                                {loading ? "Loading..." : "Authenticate"}
+                            </span>
 
                             <motion.div
                                 className="relative z-10"

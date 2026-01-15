@@ -18,6 +18,8 @@ import {
     PenTool,
     Save,
     MessageCircle,
+    AlertCircle,
+    CheckCircle2,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import api from "../../config/axios";
@@ -30,6 +32,7 @@ const SingleVehicleScreen = () => {
     const [car, setCar] = useState(null);
 
     const [isAdmin, setIsAdmin] = useState(false);
+    const [status, setStatus] = useState({ type: "", message: "" });
     const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
@@ -71,6 +74,8 @@ const SingleVehicleScreen = () => {
     };
 
     const handleSave = async () => {
+        if (status.type === "loading") return;
+        setStatus({ type: "loading", message: "Saving changes..." });
         try {
             const res = await api.put(`/vehicles/${carId}`, car);
 
@@ -80,11 +85,18 @@ const SingleVehicleScreen = () => {
                     ...res.data.car,
                     images: res.data.car.image_links || [],
                 });
-                alert("Changes saved successfully.");
+                setStatus({
+                    type: "success",
+                    message: "Changes saved successfully.",
+                });
             }
         } catch (error) {
             console.error("Error saving vehicle data:", error);
-            alert("Failed to save changes. Please check your connection.");
+            setStatus({
+                type: "error",
+                message:
+                    "Failed to save changes. Please check your connection.",
+            });
         }
     };
 
@@ -264,11 +276,16 @@ const SingleVehicleScreen = () => {
                                 </div>
                             ) : (
                                 <span className="text-xl font-light tracking-tight">
-                                    {Number(car.price).toLocaleString("en-US", {
-                                        style: "currency",
-                                        currency: "USD",
-                                        minimumFractionDigits: 0,
-                                    })}
+                                    {car.price == 0
+                                        ? "Contact for Price"
+                                        : Number(car.price).toLocaleString(
+                                              "en-US",
+                                              {
+                                                  style: "currency",
+                                                  currency: "USD",
+                                                  minimumFractionDigits: 0,
+                                              }
+                                          )}
                                 </span>
                             )}
                         </div>
@@ -304,6 +321,31 @@ const SingleVehicleScreen = () => {
                             ))}
                         </div>
                     </div>
+
+                    <AnimatePresence mode="wait">
+                        {status.type && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className={`flex items-center gap-2 mb-5 w-full px-10 text-[10px] font-bold uppercase tracking-widest px-1 ${
+                                    status.type === "success"
+                                        ? "text-emerald-500"
+                                        : status.type === "loading"
+                                        ? "text-zinc-400"
+                                        : "text-rose-500"
+                                }`}
+                            >
+                                {status.type === "success" && (
+                                    <CheckCircle2 size={14} />
+                                )}
+                                {status.type === "error" && (
+                                    <AlertCircle size={14} />
+                                )}
+                                {status.message}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <div className="p-6 md:p-8 bg-[#0c0c0c] shrink-0 border-t border-white/5 mt-auto">
                         {isAdmin ? (

@@ -133,7 +133,7 @@ const NavBar = () => {
                                                     );
                                                     window.location.href = "/";
                                                 }}
-                                                className="tracking-widest block py-2 border-b border-white/5 text-left"
+                                                className="tracking-widest block py-2 border-b border-white/5 text-left hover:cursor-pointer"
                                             >
                                                 {item.name}
                                             </button>

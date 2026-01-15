@@ -7,6 +7,8 @@ import api from "../../config/axios";
 
 const ChangePasswordScreen = () => {
     const navigate = useNavigate();
+    const [passwordError, setPasswordError] = useState("");
+    const [loading, setLoading] = useState(false);
     const [showPass, setShowPass] = useState({
         old: false,
         new: false,
@@ -23,24 +25,27 @@ const ChangePasswordScreen = () => {
     };
 
     const handleSubmit = async () => {
+        if (loading) return;
         if (!formData.oldPass || !formData.newPass || !formData.confirmPass) {
-            alert("Please fill out all fields.");
+            setPasswordError("Please fill out all fields.");
             return;
         }
         if (formData.newPass !== formData.confirmPass) {
-            alert("New password and confirmation do not match.");
+            setPasswordError("New password and confirmation do not match.");
             return;
         }
-
+        setLoading(true);
         try {
             const res = await api.put("/auth/update-password", {
                 currentPass: formData.oldPass,
                 newPass: formData.newPass,
             });
-            alert("Password updated successfully.");
+            setPasswordError("Password updated successfully.");
             navigate("/");
         } catch (error) {
             console.error("Error updating password:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -110,12 +115,13 @@ const ChangePasswordScreen = () => {
                                         className="w-full bg-black/40 border border-white/5 py-3 pl-10 pr-10 text-xs font-medium tracking-widest focus:outline-none focus:border-white/20 transition-all placeholder:text-zinc-800"
                                         placeholder="••••••••"
                                         value={formData[field.key]}
-                                        onChange={(e) =>
+                                        onChange={(e) => {
+                                            setPasswordError("");
                                             setFormData({
                                                 ...formData,
                                                 [field.key]: e.target.value,
-                                            })
-                                        }
+                                            });
+                                        }}
                                     />
                                     <button
                                         type="button"
@@ -134,12 +140,26 @@ const ChangePasswordScreen = () => {
                             </div>
                         ))}
 
+                        <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-1 text-rose-500`}
+                        >
+                            {passwordError && <AlertCircle size={14} />}
+                            {passwordError && <span>{passwordError}</span>}
+                        </motion.div>
+
                         <div className="md:pt-4 space-y-4">
                             <button
-                                className="w-full md:h-12 h-10 bg-white text-black font-bold uppercase text-[8px] md:text-[10px] tracking-[0.3em] flex items-center justify-center hover:bg-zinc-200 transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                                className={`w-full md:h-12 h-10 bg-white text-black font-bold uppercase text-[8px] md:text-[10px] tracking-[0.3em] flex items-center justify-center hover:bg-zinc-200 transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.05)] ${
+                                    loading
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : ""
+                                }`}
                                 onClick={handleSubmit}
                             >
-                                Update Credentials
+                                {loading ? "Updating..." : "Update Password"}
                             </button>
                         </div>
                     </form>
