@@ -3,7 +3,6 @@ import { Link } from "react-router";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../config/axios.js";
-import { refreshToken } from "../../../backend/controllers/authController.js";
 
 const NavBar = () => {
     const [isOpen, setIsOpen] = useState(false);
