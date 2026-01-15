@@ -51,7 +51,9 @@ const SingleVehicleScreen = () => {
         const checkLoggedIn = async () => {
             try {
                 const refreshToken = localStorage.getItem("refreshToken");
-                const res = await api.get("/auth/status", { refreshToken });
+                const res = await api.get("/auth/status", {
+                    params: { refreshToken },
+                });
                 if (res.data.loggedIn) {
                     setIsAdmin(true);
                 }

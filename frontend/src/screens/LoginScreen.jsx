@@ -15,7 +15,9 @@ const LoginScreen = () => {
     useEffect(() => {
         const checkLoggedIn = async () => {
             const refreshToken = localStorage.getItem("refreshToken");
-            const res = await api.get("/auth/status", { refreshToken });
+            const res = await api.get("/auth/status", {
+                params: { refreshToken },
+            });
             if (res.data.loggedIn) {
                 localStorage.setItem("accessToken", res.data.accessToken);
                 navigate("/");

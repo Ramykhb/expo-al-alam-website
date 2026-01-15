@@ -43,7 +43,7 @@ export const signup = async (req, res) => {
 };
 
 export const checkStatus = (req, res) => {
-    const refreshToken = req.body.refreshToken;
+    const refreshToken = req.query.refreshToken;
     if (!refreshToken) return res.json({ loggedIn: false });
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
