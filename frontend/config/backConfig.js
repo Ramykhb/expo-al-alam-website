@@ -1,1 +1,1 @@
-export const backendPath = "http://localhost:3000";
+export const backendPath = "https://plf9zbm9-3000.euw.devtunnels.ms";

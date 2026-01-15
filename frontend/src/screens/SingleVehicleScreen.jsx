@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import api from "../../config/axios";
+import { backendPath } from "../../config/backConfig";
 
 const SingleVehicleScreen = () => {
     const [activeImg, setActiveImg] = useState(0);
@@ -154,7 +155,7 @@ const SingleVehicleScreen = () => {
                         <AnimatePresence mode="wait">
                             <motion.img
                                 key={activeImg}
-                                src={`http://localhost:3000${car.images[activeImg]}`}
+                                src={`${backendPath}${car.images[activeImg]}`}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
@@ -203,7 +204,7 @@ const SingleVehicleScreen = () => {
                                 }`}
                             >
                                 <img
-                                    src={`http://localhost:3000${img}`}
+                                    src={`${backendPath}${img}`}
                                     className="w-full h-full object-cover grayscale"
                                     alt="car"
                                 />
