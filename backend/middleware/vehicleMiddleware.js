@@ -69,8 +69,8 @@ export const updateVehicleMiddleware = async (req, res, next) => {
         !brand ||
         !series ||
         !year ||
-        !price ||
-        !mileage ||
+        price == null ||
+        mileage == null ||
         !power ||
         !transmission ||
         !exterior_color ||

@@ -88,7 +88,7 @@ const MainScreen = () => {
 
                 <div className="h-px flex-1 mx-10 bg-black/10 hidden md:block" />
 
-                <div className="flex items-center gap-8">
+                <div className="flex items-center gap-8 z-30">
                     <a
                         href="https://instagram.com/expoalam"
                         target="_blank"
