@@ -177,7 +177,7 @@ const SingleVehicleScreen = () => {
                         <AnimatePresence mode="wait">
                             <motion.img
                                 key={activeImg}
-                                src={`${backendPath}${car.images[activeImg]}`}
+                                src={`${car.images[activeImg]}`}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
@@ -192,7 +192,7 @@ const SingleVehicleScreen = () => {
                                     setActiveImg((prev) =>
                                         prev > 0
                                             ? prev - 1
-                                            : car.images.length - 1
+                                            : car.images.length - 1,
                                     )
                                 }
                                 className="md:p-3 bg-black/80 border border-white/10 hover:bg-white hover:text-black transition-all h-6 w-6 flex items-center justify-center mt-2 md:h-12 md:w-12"
@@ -204,7 +204,7 @@ const SingleVehicleScreen = () => {
                                     setActiveImg((prev) =>
                                         prev < car.images.length - 1
                                             ? prev + 1
-                                            : 0
+                                            : 0,
                                     )
                                 }
                                 className="md:p-3 bg-black/80 border border-white/10 hover:bg-white hover:text-black transition-all h-6 w-6 flex items-center justify-center mt-2 md:h-12 md:w-12"
@@ -226,7 +226,7 @@ const SingleVehicleScreen = () => {
                                 }`}
                             >
                                 <img
-                                    src={`${backendPath}${img}`}
+                                    src={`${img}`}
                                     className="w-full h-full object-cover grayscale"
                                     alt="car"
                                 />
@@ -291,7 +291,7 @@ const SingleVehicleScreen = () => {
                                                   style: "currency",
                                                   currency: "USD",
                                                   minimumFractionDigits: 0,
-                                              }
+                                              },
                                           )}
                                 </span>
                             )}
@@ -339,8 +339,8 @@ const SingleVehicleScreen = () => {
                                     status.type === "success"
                                         ? "text-emerald-500"
                                         : status.type === "loading"
-                                        ? "text-zinc-400"
-                                        : "text-rose-500"
+                                          ? "text-zinc-400"
+                                          : "text-rose-500"
                                 }`}
                             >
                                 {status.type === "success" && (
@@ -393,11 +393,11 @@ const SingleVehicleScreen = () => {
                             <button
                                 onClick={() => {
                                     const message = encodeURIComponent(
-                                        `Hello, I would like to buy this car: ${car.brand} ${car.name} listed at $${car.price}.`
+                                        `Hello, I would like to buy this car: ${car.brand} ${car.name} listed at $${car.price}.`,
                                     );
                                     window.open(
                                         `https://wa.me/96181039626?text=${message}`,
-                                        "_blank"
+                                        "_blank",
                                     );
                                 }}
                                 className="w-full h-12 bg-white text-black font-bold uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-2 active:scale-95"
