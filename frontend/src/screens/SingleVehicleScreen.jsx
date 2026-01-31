@@ -393,7 +393,7 @@ const SingleVehicleScreen = () => {
                             <button
                                 onClick={() => {
                                     const message = encodeURIComponent(
-                                        `Hello, I would like to buy this car: ${car.brand} ${car.name} listed at $${car.price}.`,
+                                        `Hello, I would like to know more about this car: ${car.brand} ${car.name} listed at $${car.price}.`,
                                     );
                                     window.open(
                                         `https://wa.me/96181039626?text=${message}`,
