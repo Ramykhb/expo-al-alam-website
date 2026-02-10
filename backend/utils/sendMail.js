@@ -1,33 +1,32 @@
 import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 
 dotenv.config();
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export const sendEmail = async ({ to, subject, html }) => {
-    try {
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.GMAIL_USER,
-                pass: process.env.GMAIL_PASS,
-            },
-        });
+  try {
+    const { data, error } = await resend.emails.send({
+      from: "Expo Al Alam <info@yourverifieddomain.com>",
+      to: to || process.env.EMAIL_RECEIVER,
+      subject: subject,
+      html: html,
+    });
 
-        const mailOptions = {
-            from: `"Expo Al Alam" <${process.env.GMAIL_USER}>`,
-            to: to || process.env.EMAIL_RECEIVER,
-            subject,
-            html,
-        };
-
-        await transporter.sendMail(mailOptions);
-    } catch (error) {
-        console.error("❌ Error sending email:", error.message);
+    if (error) {
+      return console.error("❌ Resend Error:", error.message);
     }
+
+    console.log("✅ Email sent successfully:", data.id);
+  } catch (error) {
+    console.error("❌ Unexpected error sending email:", error.message);
+  }
 };
 
 export const generateContactEmail = (fullName, email, message) => {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
