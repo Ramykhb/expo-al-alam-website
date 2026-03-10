@@ -1,1 +1,1 @@
-export const backendPath = "http://localhost:3000";
+export const backendPath = "https://expo-al-alam-website.onrender.com";
