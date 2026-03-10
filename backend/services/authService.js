@@ -6,10 +6,12 @@ const SALT_ROUNDS = 10;
 
 export async function usernameExists(username) {
     try {
-        const sql = "SELECT COUNT(*) as count FROM Users WHERE username = ?";
-        const [result] = await pool.query(sql, [username]);
-        return result[0].count > 0;
+        console.log(username);
+        const sql = "SELECT COUNT(*) as count FROM Users WHERE username = $1";
+        const result = await pool.query(sql, [username]);
+        return result.rows[0].count > 0;
     } catch (err) {
+        console.error("Error checking username existence:", err);
         throw err;
     }
 }
@@ -17,9 +19,9 @@ export async function usernameExists(username) {
 export async function updatePassword(username, currentPass, newPass) {
     const userID = await getID(username);
     try {
-        const sql = "SELECT password FROM Users WHERE id = ?";
-        const [result] = await pool.query(sql, [userID]);
-        const match = await verifyPassword(currentPass, result[0].password);
+        const sql = "SELECT password FROM Users WHERE id = $1";
+        const result = await pool.query(sql, [userID]);
+        const match = await verifyPassword(currentPass, result.rows[0].password);
         if (!match) {
             return false;
         }
@@ -29,8 +31,8 @@ export async function updatePassword(username, currentPass, newPass) {
     const newPassHash = await hashPassword(newPass);
 
     try {
-        const sql = "UPDATE Users SET password = ? WHERE id = ?";
-        const [result] = await pool.query(sql, [newPassHash, userID]);
+        const sql = "UPDATE Users SET password = $1 WHERE id = $2";
+        const result = await pool.query(sql, [newPassHash, userID]);
         return true;
     } catch (err) {
         throw err;
@@ -39,12 +41,12 @@ export async function updatePassword(username, currentPass, newPass) {
 
 export async function getID(username) {
     try {
-        const sql = "SELECT id FROM Users WHERE username = ?";
-        const [result] = await pool.query(sql, [username]);
-        if (result.length === 0) {
+        const sql = "SELECT id FROM Users WHERE username = $1";
+        const result = await pool.query(sql, [username]);
+        if (result.rows.length === 0) {
             throw new Error(`User with username "${username}" not found`);
         }
-        return result[0].id;
+        return result.rows[0].id;
     } catch (err) {
         throw err;
     }
@@ -52,10 +54,10 @@ export async function getID(username) {
 
 export async function getPassword(username) {
     try {
-        const sql = "SELECT password FROM Users WHERE username = ?";
-        const [result] = await pool.query(sql, [username]);
-        if (result.length == 0) return null;
-        return result[0].password;
+        const sql = "SELECT password FROM Users WHERE username = $1";
+        const result = await pool.query(sql, [username]);
+        if (result.rows.length == 0) return null;
+        return result.rows[0].password;
     } catch (err) {
         throw err;
     }
@@ -64,9 +66,9 @@ export async function getPassword(username) {
 export async function tokenExists(refreshToken) {
     try {
         const sql =
-            "SELECT COUNT(*) AS count FROM Refresh_Tokens WHERE token = ?";
-        const [result] = await pool.query(sql, [refreshToken]);
-        return result[0].count > 0;
+            "SELECT COUNT(*) AS count FROM Refresh_Tokens WHERE token = $1";
+        const result = await pool.query(sql, [refreshToken]);
+        return result.rows[0].count > 0;
     } catch (err) {
         throw err;
     }
@@ -75,8 +77,8 @@ export async function tokenExists(refreshToken) {
 export async function insertToken(username, refreshToken) {
     const userID = await getID(username);
     try {
-        const sql = "INSERT INTO Refresh_Tokens VALUES (?,?)";
-        const [result] = await pool.query(sql, [refreshToken, userID]);
+        const sql = "INSERT INTO Refresh_Tokens VALUES ($1,$2)";
+        const result = await pool.query(sql, [refreshToken, userID]);
         return true;
     } catch (err) {
         throw err;
@@ -87,8 +89,8 @@ export async function addUser({ username, password }) {
     username = username.toLowerCase();
     const hashedPassword = await hashPassword(password);
     try {
-        const sql = "INSERT INTO Users (username, password) VALUES (?,?)";
-        const [result] = await pool.query(sql, [username, hashedPassword]);
+        const sql = "INSERT INTO Users (username, password) VALUES ($1,$2) RETURNING id";
+        const result = await pool.query(sql, [username, hashedPassword]);
         return result;
     } catch (err) {
         throw err;
@@ -99,15 +101,15 @@ export const deleteRefreshTokenFromDB = async (
     refreshToken,
     username = null
 ) => {
-    let sql = "DELETE FROM Refresh_Tokens WHERE token = ?";
+    let sql = "DELETE FROM Refresh_Tokens WHERE token = $1";
     let temp = [refreshToken];
     if (username) {
         let userID = await getID(username);
-        sql = "DELETE FROM Refresh_Tokens WHERE userId = ?";
-        let temp = [userID];
+        sql = "DELETE FROM Refresh_Tokens WHERE userId = $1";
+        temp = [userID];
     }
     try {
-        const [result] = await pool.query(sql, temp);
+        const result = await pool.query(sql, temp);
     } catch (err) {
         throw err;
     }

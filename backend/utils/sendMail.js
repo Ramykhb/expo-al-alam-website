@@ -1,26 +1,21 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 
 dotenv.config();
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export const sendEmail = async ({ to, subject, html }) => {
     try {
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.GMAIL_USER,
-                pass: process.env.GMAIL_PASS,
-            },
-        });
 
         const mailOptions = {
-            from: `"Expo Al Alam" <${process.env.GMAIL_USER}>`,
+            from: "Expo Al Alam <no-reply@expoalalam.com>",
             to: to || process.env.EMAIL_RECEIVER,
             subject,
             html,
         };
 
-        await transporter.sendMail(mailOptions);
+        await resend.emails.send(mailOptions);
     } catch (error) {
         console.error("❌ Error sending email:", error.message);
     }

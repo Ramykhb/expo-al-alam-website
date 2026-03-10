@@ -5,14 +5,19 @@ import {
     getVehicleById,
     updateVehicleById,
 } from "../services/vehicleService.js";
-import fs from "fs";
 import path from "path";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import dotenv from "dotenv";
+dotenv.config();
 
-const UPLOAD_DIR = path.join(process.cwd(), "uploads", "vehicles");
-
-if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
+const s3 = new S3Client({
+  region: "auto",
+  endpoint: process.env.S3_API_KEY,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+});
 
 export const deleteVehicle = async (req, res) => {
     try {
@@ -71,37 +76,45 @@ export const getSingleVehicle = async (req, res) => {
 };
 
 export const addVehicle = async (req, res) => {
-    try {
-        const { mainImageIndex } = req.body;
+  try {
+    const { mainImageIndex } = req.body;
 
-        const imagePaths = [];
+    const imagePaths = [];
 
-        req.files.forEach((file, index) => {
-            const ext = path.extname(file.originalname);
-            const filename = `${Date.now()}-${index}${ext}`;
-            const filepath = path.join(UPLOAD_DIR, filename);
+    for (let index = 0; index < req.files.length; index++) {
+      const file = req.files[index];
+      const ext = path.extname(file.originalname);
+      const filename = `${Date.now()}-${index}${ext}`;
+      const key = `cars/${filename}`;
 
-            fs.writeFileSync(filepath, file.buffer);
+      await s3.send(new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: key,
+        Body: file.buffer,
+      }));
 
-            imagePaths.push(`/uploads/vehicles/${filename}`);
-        });
+      const publicUrl = `${process.env.R2_PUBLIC_URL}/expoalalam/cars/${filename}`;
 
-        const mainIndex = parseInt(mainImageIndex, 10) || 0;
-        const [mainImage] = imagePaths.splice(mainIndex, 1);
-        imagePaths.unshift(mainImage);
-
-        await addVehicleToDB(req.body, imagePaths);
-
-        res.status(201).json({
-            success: true,
-            message: "Vehicle added successfully",
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: "Failed to add vehicle",
-        });
+      imagePaths.push(publicUrl);
     }
+
+    const mainIndex = parseInt(mainImageIndex, 10) || 0;
+    const [mainImage] = imagePaths.splice(mainIndex, 1);
+    imagePaths.unshift(mainImage);
+
+    await addVehicleToDB(req.body, imagePaths);
+
+    res.status(201).json({
+      success: true,
+      message: "Vehicle added successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to add vehicle",
+    });
+  }
 };
 
 export const getAllVehicles = async (req, res) => {

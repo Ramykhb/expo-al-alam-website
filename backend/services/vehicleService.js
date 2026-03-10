@@ -2,10 +2,10 @@ import pool from "../database/dbConfig.js";
 
 export const deleteVehicleById = async (id) => {
     try {
-        const [result] = await pool.query("DELETE FROM Cars WHERE id = ?", [
+        const result = await pool.query("DELETE FROM Cars WHERE id = $1", [
             id,
         ]);
-        return result.affectedRows > 0;
+        return result.rowCount > 0;
     } catch (error) {
         console.error("Error deleting vehicle:", error);
         throw error;
@@ -14,12 +14,12 @@ export const deleteVehicleById = async (id) => {
 
 export const updateVehicleById = async (id, updateData) => {
     try {
-        const result = await pool.query(
+        await pool.query(
             `UPDATE Cars SET 
-                name = ?, brand = ?, series = ?, year = ?, price = ?, 
-                mileage = ?, power = ?, transmission = ?, 
-                exterior_color = ?, interior_color = ? 
-            WHERE id = ?`,
+                name = $1, brand = $2, series = $3, year = $4, price = $5, 
+                mileage = $6, power = $7, transmission = $8, 
+                exterior_color = $9, interior_color = $10 
+            WHERE id = $11`,
             [
                 updateData.name,
                 updateData.brand,
@@ -35,12 +35,12 @@ export const updateVehicleById = async (id, updateData) => {
             ]
         );
 
-        const [updatedRows] = await pool.query(
-            "SELECT * FROM Cars WHERE id = ?",
+        const result = await pool.query(
+            "SELECT * FROM Cars WHERE id = $1",
             [id]
         );
 
-        const updatedVehicle = updatedRows[0];
+        const updatedVehicle = result.rows[0];
 
         return updatedVehicle;
     } catch (error) {
@@ -50,10 +50,10 @@ export const updateVehicleById = async (id, updateData) => {
 
 export const getVehicleById = async (id) => {
     try {
-        const [rows] = await pool.query("SELECT * FROM Cars WHERE id = ?", [
+        const result = await pool.query("SELECT * FROM Cars WHERE id = $1", [
             id,
         ]);
-        return rows[0];
+        return result.rows[0];
     } catch (error) {
         console.error("Error fetching vehicle:", error);
         throw error;
@@ -80,7 +80,7 @@ export const addVehicleToDB = async (vehicleData, imagePaths) => {
                 name, brand, series, year, price, mileage, power,
                 transmission, exterior_color, interior_color, image_links
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         `;
 
         await pool.query(query, [
@@ -104,7 +104,7 @@ export const addVehicleToDB = async (vehicleData, imagePaths) => {
 
 export const getAllVehiclesFromDB = async () => {
     try {
-        const [cars] = await pool.query(`
+        const result = await pool.query(`
             SELECT 
                 id, name, brand, series, year, price, 
                 mileage, power, transmission, exterior_color, 
@@ -112,7 +112,7 @@ export const getAllVehiclesFromDB = async () => {
             FROM Cars 
             ORDER BY created_at DESC
         `);
-        return cars;
+        return result.rows;
     } catch (error) {
         console.error("Error fetching vehicles:", error);
         throw error;
