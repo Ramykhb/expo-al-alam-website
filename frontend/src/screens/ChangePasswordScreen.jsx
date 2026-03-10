@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Lock, Eye, EyeOff, ShieldCheck, ArrowLeft } from "lucide-react";
+import { Lock, Eye, EyeOff, ShieldCheck, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router";
 import NavBar from "../components/NavBar";
 import api from "../../config/axios";
@@ -44,6 +44,7 @@ const ChangePasswordScreen = () => {
             navigate("/");
         } catch (error) {
             console.error("Error updating password:", error);
+            setPasswordError("Failed to update password.");
         } finally {
             setLoading(false);
         }
