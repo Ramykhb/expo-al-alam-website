@@ -51,6 +51,10 @@ app.post("/api/contact", async (req, res) => {
     }
 });
 
+app.get("/api/ping", (req, res) => {
+    res.json({ message: "pong" });
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port: ${PORT}`);
 });
